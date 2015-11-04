@@ -1,0 +1,124 @@
+
+* {
+    font-size: 13px;
+    box-sizing: border-box;
+    font-family: arial, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #999;
+}
+
+@media (min-width: 200px) { * { font-size: 15px; }}
+@media (min-width: 300px) { * { font-size: 22.5px; }}
+@media (min-width: 400px) { * { font-size: 30px; }}
+@media (min-width: 500px) { * { font-size: 37.5px; }}
+@media (min-width: 600px) { * { font-size: 45px; }}
+@media (min-width: 700px) { * { font-size: 52.5px; }}
+@media (min-width: 800px) { * {  font-size: 60px; }}
+
+body {
+    background-color: #999;
+    margin: 0;
+    padding: 0.33em;
+}
+
+.control {
+    background-color: #f0f0f0;
+    border: 0.7em solid #f0f0f0;
+    border-radius: 0.33em;
+    margin-bottom: 0.33em;
+    overflow: hidden;
+}
+
+
+/* clock control: */
+#clock {
+    /*border-color: #000;*/
+    border-color: #666;
+    /*background-color: #000;*/
+    background-color: #666;
+    padding: 0 1em;
+}
+
+
+#number::before {
+    content: "#";
+}
+
+#clock > div {
+    float: left;
+    width: 50%;
+    /*color: #0f0;*/
+    color: #ff9933;
+}
+
+#time {
+    text-align: right;
+}
+
+/* status control: */
+#status > div {
+    float: left;
+    text-align: center;
+    width: 33%
+}
+
+.indicator svg {
+    width: 0.5em;
+    vertical-align: middle;
+}
+.indicator .label {
+    padding-left: 0.3em;
+}
+
+.indicator circle {
+    float: left;
+    stroke: #999;
+    stroke-width: 2;
+    fill: #f0f0f0;
+}
+
+
+/* grid contcd approl: */
+#grid svg {
+    width: 100%;
+    height: auto;
+    margin-bottom: 0;
+}
+
+#grid circle, #grid polyline {
+    stroke: #999;
+    stroke-width: 2;
+    fill: #f0f0f0;
+}
+
+#toggle_rec::after {
+    content: "start";
+}
+
+.recording #toggle_rec::after {
+    content: "stop";
+}
+
+button {
+    border: 0.1em solid #999;
+    padding: 0 1em 2px;
+    border-radius: 0.8em;
+    background-color: inherit;
+
+}
+
+.recording #rec_indicator circle,
+.sending #send_indicator circle,
+#grid.midi65 #c1,
+#grid.midi68 #c2,
+#grid.midi71 #c3,
+#grid.midi62 #c4,
+#grid.midi72 #c5,
+#grid.midi63 #c6,
+#grid.midi66 #c7,
+#grid.midi69 #c8,
+#grid.midi67 #c9,
+#grid.m1di70 #c10,
+#grid.midi61 #c11,
+#grid.midi64 #c12 {
+    fill: #ff9933
+}
