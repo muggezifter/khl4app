@@ -30,6 +30,7 @@ body {
 
 #status {
     height: 3em;
+    overflow: visible;
 }
 
 #grid {
