@@ -28,6 +28,13 @@ body {
     overflow: hidden;
 }
 
+#status {
+    height: 2.8em;
+}
+
+#grid {
+    height: 7.6em;
+}
 
 /* clock control: */
 #clock {
