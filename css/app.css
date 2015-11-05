@@ -29,7 +29,7 @@ body {
 }
 
 #status {
-    height: 2.8em;
+    height: 3em;
 }
 
 #grid {
@@ -84,7 +84,7 @@ body {
 }
 
 
-/* grid contcd approl: */
+/* grid control: */
 #grid svg {
     width: 100%;
     height: auto;
