@@ -1,4 +1,9 @@
 (function () {
+    var m2n = function (m) {
+        return ['c','c#','d','d#','e','f','f#','g','g#','a','a#','b'][m%12];
+    }
+
+
     var khl = {
         // private
         __rec: false,
