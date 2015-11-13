@@ -14,7 +14,7 @@
          * ticks: How many ticks between requests. 1 tick is ~ 500ms
          */
         settings: {
-            url: "https://khl4.localtunnel.me/khl",
+            url: "https://khl4.localtunnel.me",
             ticks: 10
         },
         /**
@@ -58,7 +58,7 @@
                 function (pos) {
                     var lon = pos.coords.longitude;
                     var lat = pos.coords.latitude;
-                    jQuery.getJSON(khl.settings.url + "?nr=" + this.clock.number + "&lat=" + lat + "&lon=" + lon + "&callback=?")
+                    jQuery.getJSON(khl.settings.url + "/recording/node?nr=" + this.clock.number + "&lat=" + lat + "&lon=" + lon + "&callback=?")
                         .done(function (data) {
                             this.updateGrid(data);
                             console.log(data);
