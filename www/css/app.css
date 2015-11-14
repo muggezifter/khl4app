@@ -51,12 +51,22 @@ body {
     content: "#";
 }
 
+#clock > div#rec_id {
+    padding-bottom: 0.3em;
+    width: 100%;
+}
+
 #clock > div {
     float: left;
     width: 50%;
     /*color: #0f0;*/
     color: #ff9933;
 }
+
+#clock span {
+    color: #ff9933;
+}
+
 
 #time {
     text-align: right;
@@ -116,17 +126,17 @@ button {
 
 .recording #rec_indicator circle,
 .sending #send_indicator circle,
-#grid.midi65 #c1,
-#grid.midi68 #c2,
-#grid.midi71 #c3,
-#grid.midi62 #c4,
-#grid.midi72 #c5,
-#grid.midi63 #c6,
-#grid.midi66 #c7,
-#grid.midi69 #c8,
-#grid.midi67 #c9,
-#grid.m1di70 #c10,
-#grid.midi61 #c11,
-#grid.midi64 #c12 {
+#grid.midi64 #c1,
+#grid.midi67 #c2,
+#grid.midi70 #c3,
+#grid.midi61 #c4,
+#grid.midi71 #c5,
+#grid.midi62 #c6,
+#grid.midi65 #c7,
+#grid.midi68 #c8,
+#grid.midi66 #c9,
+#grid.midi69 #c10,
+#grid.midi60 #c11,
+#grid.midi63 #c12 {
     fill: #ff9933
 }

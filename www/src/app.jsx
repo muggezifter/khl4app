@@ -1,9 +1,12 @@
 (function () {
+
     var m2n = function (m) {
-        return ['c','c#','d','d#','e','f','f#','g','g#','a','a#','b'][m%12];
+        return ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'][m % 12];
     }
 
-
+    /**
+     * Object that holds state and provides functions to manipulate state.
+     */
     var khl = {
         // private
         __rec: false,
@@ -14,13 +17,15 @@
          * ticks: How many ticks between requests. 1 tick is ~ 500ms
          */
         settings: {
-            url: "https://khl4.localtunnel.me",
+            //url: "https://khl4.localtunnel.me",
+            url: "http://localhost:8080",
             ticks: 10
         },
         /**
          * State for the various components
          */
         clock: {
+            rec_id: "",
             number: "0000",
             time: "00:00:00"
         },
@@ -36,14 +41,38 @@
          */
         toggleRec: function () {
             if (this.__rec === false) {
+                // start recording
                 this.status.classname.push("recording");
                 this.__startTime = new Date();
                 this.__rec = true;
             } else {
-                this.status.classname = this.status.classname.filter(function(v){ return (v !== "recording")});
+                // stop recording
+                this.status.classname = this.status.classname.filter(function (v) {
+                    return (v !== "recording")
+                });
                 this.__rec = false;
             }
             return this.__rec;
+        },
+        /**
+         * Initialize recording; on the server a new record is made in the db. Set the recording id.
+         *
+         * @returns {khl}
+         */
+        initRec: function () {
+            jQuery.getJSON(khl.settings.url + "/recording/start?callback=?")
+                .done(function (data) {
+                    console.log(this.clock);
+                    this.clock.rec_id = data.recording_id;
+                    this.clock.number = "0000";
+                    this.clock.time = "00:00:00";
+                    console.log(data);
+                }.bind(this));
+            return this;
+        },
+        endRec: function() {
+            this.grid.classname = ["control"];
+            return this;
         },
         /**
          * Send current position to the server, receive back the calculated chord
@@ -58,14 +87,21 @@
                 function (pos) {
                     var lon = pos.coords.longitude;
                     var lat = pos.coords.latitude;
-                    jQuery.getJSON(khl.settings.url + "/recording/node?nr=" + this.clock.number + "&lat=" + lat + "&lon=" + lon + "&callback=?")
+                    jQuery.getJSON([
+                        khl.settings.url,
+                        "/recording/node?nr=", this.clock.number,
+                        "&rec_id=", this.clock.rec_id,
+                        "&lat=", lat,
+                        "&lon=", lon,
+                        "&callback=?"
+                    ].join(""))
                         .done(function (data) {
                             this.updateGrid(data);
                             console.log(data);
                         }.bind(this))
                 }.bind(this), function (err) {
                     console.warn('ERROR(' + err.code + '): ' + err.message);
-                },{
+                }, {
                     enableHighAccuracy: true,
                     timeout: 5000,
                     maximumAge: 0
@@ -105,11 +141,16 @@
          * @returns {khl}
          */
         updateGrid: function (data) {
-            this.grid.classname = ["control"].concat(data.map(function (v) { return ( "midi" + v.note)}));
+            this.grid.classname = ["control"].concat(data.map(function (v) {
+                return ( "midi" + v.note)
+            }));
             return this;
         }
     };
 
+    /**
+     * Root object for the app
+     */
     var KhlApp = React.createClass({
         clockId: 0,
         tick: 0,
@@ -121,7 +162,7 @@
          */
         toggleClock: function () {
             if (khl.toggleRec()) {
-                khl.updatePos();
+                khl.initRec();
                 // start the clock
                 this.clockId = setInterval(function () {
                     if (++this.tick > khl.settings.ticks) {
@@ -131,6 +172,7 @@
                     this.setState(khl.updateTime().getData());
                 }.bind(this), 500)
             } else {
+                khl.endRec();
                 // stop the clock
                 clearInterval(this.clockId)
             }
@@ -147,6 +189,9 @@
         }
     });
 
+    /**
+     * Status component: has start toggle and status indicators
+     */
     var StatusControl = React.createClass({
         toggleHandler: function () {
             if (typeof this.props.toggleHandler === 'function') {
@@ -166,7 +211,9 @@
         }
     });
 
-
+    /**
+     * Status indicator: takes 2 params: label and id
+     */
     var StatusIndicator = React.createClass({
         render: function () {
             return (
@@ -180,7 +227,9 @@
         }
     });
 
-
+    /**
+     * Grid component, visual feedback
+     */
     var GridControl = React.createClass({
         render: function () {
             return (
@@ -209,10 +258,15 @@
         }
     });
 
+    /**
+     * Clock component, textual feedback
+     */
     var ClockControl = React.createClass({
         render: function () {
+            //console.log("ClockControl render", this.props.data)
             return (
                 <div id="clock" className="control">
+                    <div id="rec_id">id: {this.props.data.clock.rec_id}</div>
                     <div id="number">{this.props.data.clock.number}</div>
                     <div id="time">{this.props.data.clock.time}</div>
                 </div>
