@@ -38,7 +38,7 @@ body {
 }
 
 /* clock control: */
-#clock {
+#info {
     /*border-color: #000;*/
     border-color: #666;
     /*background-color: #000;*/
@@ -51,23 +51,23 @@ body {
     content: "#";
 }
 
-#clock > div#rec_id {
+#info > div#rec_id {
     padding-bottom: 0.3em;
     width: 100%;
 }
 
-#clock > div {
+#info > div {
     float: left;
     width: 50%;
     /*color: #0f0;*/
     color: #ff9933;
 }
 
-#clock span {
+#info span {
     color: #ff9933;
 }
 
-#clock span:nth-last-of-type(1) {
+#info span:nth-last-of-type(1) {
     float: right;
 }
 
@@ -98,6 +98,18 @@ body {
     fill: #f0f0f0;
 }
 
+#level .bar .outer {
+    float: right;
+    width: 85%;
+    height: 0.6em;
+    border: 0.1em solid #999;
+    margin-top: 0.25em;
+}
+#level .bar .inner {
+    width: 40%;
+    height: 100%;
+    background-color: #ff9933;
+}
 
 /* grid control: */
 #grid svg {
