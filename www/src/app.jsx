@@ -17,15 +17,15 @@
          * ticks: How many ticks between requests. 1 tick is ~ 500ms
          */
         settings: {
-            //url: "https://khl4.localtunnel.me",
-            url: "http://localhost:8080",
+            url: "https://khl4.localtunnel.me",
+            //url: "http://localhost:8080",
             ticks: 10
         },
         /**
          * State for the various components
          */
         clock: {
-            rec_id: "",
+            rec_id: "[not recording]",
             number: "0000",
             time: "00:00:00"
         },

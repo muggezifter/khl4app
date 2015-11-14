@@ -67,6 +67,10 @@ body {
     color: #ff9933;
 }
 
+#clock span:nth-last-of-type(1) {
+    float: right;
+}
+
 
 #time {
     text-align: right;
