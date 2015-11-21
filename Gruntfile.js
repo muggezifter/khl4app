@@ -3,6 +3,15 @@ module.exports = function(grunt) {
 require('load-grunt-tasks')(grunt); // npm install --save-dev load-grunt-tasks
 
 grunt.initConfig({
+    watch: {
+        scripts: {
+            files: '**/*.jsx',
+            tasks: ['babel'],
+            options: {
+                interrupt: true,
+            },
+        },
+    },
     babel: {
         options: {
             sourceMap: true,
@@ -14,8 +23,11 @@ grunt.initConfig({
             }
         }
     }
+
 });
 
-grunt.registerTask('default', ['babel']);
+grunt.loadNpmTasks('grunt-contrib-watch');
+
+grunt.registerTask('default', ['watch']);
 
 };

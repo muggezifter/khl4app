@@ -1,5 +1,4 @@
 (function () {
-
     /**
      * Midi to note name
      *
@@ -9,7 +8,6 @@
     var m2n = function (m) {
         return ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'][m % 12];
     }
-
 
     /**
      * Holds recording start time
@@ -95,11 +93,8 @@
      */
     var updateGrid = function (data) {
         state.grid.classname = ["control"].concat(
-            data.filter(function (v) {
-                return v.hasOwnProperty("note")
-            }).map(function (v) {
-                return ("midi" + v.note)
-            })
+            data.filter(v => v.hasOwnProperty("note"))
+                .map(v => "midi" + v.note)
         );
     }
 
@@ -166,14 +161,14 @@
             if (toggleRec()) {
                 initRec();
                 // start the clock
-                this.clockHandle = setInterval(function () {
+                this.clockHandle = setInterval(() => {
                     if (++this.tick > settings.ticks) {
                         updatePos();
                         this.tick = 0;
                     }
                     updateTime();
                     this.setState(state);
-                }.bind(this), 500)
+                }, 500)
             } else {
                 endRec();
                 // stop the clock

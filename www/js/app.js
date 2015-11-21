@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-
     /**
      * Midi to note name
      *
@@ -151,17 +150,19 @@
         },
         // toggle handler to be passed to the status control
         toggleClock: function toggleClock() {
+            var _this = this;
+
             if (toggleRec()) {
                 initRec();
                 // start the clock
-                this.clockHandle = setInterval((function () {
-                    if (++this.tick > settings.ticks) {
+                this.clockHandle = setInterval(function () {
+                    if (++_this.tick > settings.ticks) {
                         updatePos();
-                        this.tick = 0;
+                        _this.tick = 0;
                     }
                     updateTime();
-                    this.setState(state);
-                }).bind(this), 500);
+                    _this.setState(state);
+                }, 500);
             } else {
                 endRec();
                 // stop the clock
