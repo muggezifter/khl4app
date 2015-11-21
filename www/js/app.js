@@ -15,7 +15,7 @@
     var settings = {
         //url: "https://khl4.localtunnel.me",
         url: "http://localhost:8080",
-        ticksPerUpdate: 5,
+        ticksPerUpdate: 20,
         tickLength: 500
     };
 
@@ -73,7 +73,7 @@
             state.status.classname = state.status.classname.filter(function (v) {
                 return v !== "recording";
             });
-            resetLevels();
+            state.levels = getZeroLevels();
             recStartTime = null;
         }
         return recStartTime !== null;
@@ -82,9 +82,13 @@
     /**
      * End recording
      */
-    var endRec = function endRec() {
-        state.grid.classname = ["control"];
-        state.info.rec_id = "[not recording]";
+    var endRec = function endRec(callback) {
+        jQuery.getJSON(settings.url + "/recording/stop?rec_id=" + state.info.rec_id + "&callback=?").done(function (data) {
+            console.log(data);
+            state.grid.classname = ["control"];
+            state.info.rec_id = "[not recording]";
+            callback();
+        });
     };
 
     /**
@@ -114,8 +118,8 @@
     /**
      * Reset the levels data in state object
      */
-    var resetLevels = function resetLevels() {
-        state.levels = [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }];
+    var getZeroLevels = function getZeroLevels() {
+        return [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }];
     };
 
     /**
@@ -181,9 +185,11 @@
                     }, settings.tickLength);
                 });
             } else {
-                endRec();
                 // stop the clock
                 clearInterval(this.clockHandle);
+                endRec(function () {
+                    _this.setState(state);
+                });
             }
             this.setState(state);
         },
@@ -319,7 +325,7 @@
     });
 
     /**
-     * Clock component, textual feedback
+     * Info component, textual feedback
      */
     var InfoControl = React.createClass({
         displayName: "InfoControl",

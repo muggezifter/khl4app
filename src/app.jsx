@@ -13,7 +13,7 @@
     var settings = {
         //url: "https://khl4.localtunnel.me",
         url: "http://localhost:8080",
-        ticksPerUpdate: 5,
+        ticksPerUpdate: 20,
         tickLength: 500
     }
 
@@ -74,7 +74,7 @@
             state.status.classname = state.status.classname.filter(function (v) {
                 return (v !== "recording")
             });
-            resetLevels();
+            state.levels = getZeroLevels();
             recStartTime = null;
         }
         return (recStartTime !== null);
@@ -83,9 +83,14 @@
     /**
      * End recording
      */
-    var endRec = () => {
-        state.grid.classname = ["control"];
-        state.info.rec_id = "[not recording]";
+    var endRec = callback => {
+        jQuery.getJSON(settings.url + "/recording/stop?rec_id=" + state.info.rec_id + "&callback=?")
+            .done(data => {
+                console.log(data);
+                state.grid.classname = ["control"];
+                state.info.rec_id = "[not recording]";
+                callback();
+            });
     }
 
     /**
@@ -105,19 +110,17 @@
      * @param data
      */
     var getLevels = data => data.filter(v => v.hasOwnProperty("note"))
-        .map(v =>({"label": m2n(v.note), "level": 100 / 127 * v.velocity}))
+        .map(v =>({"label": m2n(v.note), "level": 100 / 127 * v.velocity}));
 
 
     /**
      * Reset the levels data in state object
      */
-    var resetLevels = function () {
-        state.levels = [
-            {label: "--", level: "0"},
-            {label: "--", level: "0"},
-            {label: "--", level: "0"}
-        ]
-    }
+    var getZeroLevels = () => ([
+        {label: "--", level: "0"},
+        {label: "--", level: "0"},
+        {label: "--", level: "0"}
+    ]);
 
     /**
      * Get the elapsed time since beginning the recordimg
@@ -186,9 +189,11 @@
                     }, settings.tickLength)
                 });
             } else {
-                endRec();
                 // stop the clock
-                clearInterval(this.clockHandle)
+                clearInterval(this.clockHandle);
+                endRec(() => {
+                    this.setState(state)
+                });
             }
             this.setState(state);
         },
@@ -303,7 +308,7 @@
     });
 
     /**
-     * Clock component, textual feedback
+     * Info component, textual feedback
      */
     var InfoControl = React.createClass({
         render: function () {
