@@ -9,8 +9,8 @@ grunt.initConfig({
             tasks: ['babel'],
             options: {
                 interrupt: true,
-            },
-        },
+            }
+        }
     },
     babel: {
         options: {
@@ -19,7 +19,7 @@ grunt.initConfig({
         },
         dist: {
             files: {
-                'www/js/app.js': 'www/src/app.jsx'
+                'www/js/app.js': 'src/app.jsx'
             }
         }
     }

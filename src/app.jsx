@@ -1,13 +1,4 @@
 (function () {
-    /**
-     * Midi to note name
-     *
-     * @param m
-     * @returns {string}
-     */
-    var m2n = function (m) {
-        return ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'][m % 12];
-    }
 
     /**
      * Holds recording start time
@@ -22,7 +13,8 @@
     var settings = {
         //url: "https://khl4.localtunnel.me",
         url: "http://localhost:8080",
-        ticks: 10
+        ticksPerUpdate: 5,
+        tickLength: 500
     }
 
     /**
@@ -39,22 +31,32 @@
         },
         status: {
             classname: ["control"]
-        }
+        },
+        levels: [
+            {label: "--", level: "0"},
+            {label: "--", level: "0"},
+            {label: "--", level: "0"}
+        ]
     }
+
+    /**
+     * Midi note number to human readable note name
+     *
+     * @param m
+     * @returns {string}
+     */
+    var m2n = m => ['c', 'c \u266F', 'd', 'd \u266F', 'e', 'f', 'f \u266F', 'g', 'g \u266F', 'a', 'a \u266F', 'b'][m % 12];
 
     /**
      * Initialize recording: on the server a new record is made in the db. Set the recording id.
      *
      * @returns {khl}
      */
-    var initRec = function () {
+    var initRec = callback => {
         jQuery.getJSON(settings.url + "/recording/start?callback=?")
-            .done(function (data) {
-                console.log(state.info);
+            .done(data => {
                 state.info.rec_id = data.recording_id;
-                state.info.number = "0000";
-                state.info.time = "00:00:00";
-                console.log(data);
+                callback();
             });
     }
 
@@ -62,7 +64,7 @@
      * Stop and start recording
      * @returns {boolean}
      */
-    var toggleRec = function () {
+    var toggleRec = () => {
         if (recStartTime === null) {
             // start recording
             state.status.classname.push("recording");
@@ -72,6 +74,7 @@
             state.status.classname = state.status.classname.filter(function (v) {
                 return (v !== "recording")
             });
+            resetLevels();
             recStartTime = null;
         }
         return (recStartTime !== null);
@@ -80,40 +83,52 @@
     /**
      * End recording
      */
-    var endRec = function () {
+    var endRec = () => {
         state.grid.classname = ["control"];
         state.info.rec_id = "[not recording]";
     }
 
     /**
      * Translate the received data (the chord) into class names for the grid control
-     *
      * @param data
-     * @returns {khl}
      */
-    var updateGrid = function (data) {
-        state.grid.classname = ["control"].concat(
-            data.filter(v => v.hasOwnProperty("note"))
-                .map(v => "midi" + v.note)
-        );
+    var getGridClassName = data => ["control"]
+        .concat(
+        data
+            .filter(v => v.hasOwnProperty("note"))
+            .map(v => "midi" + v.note)
+    );
+
+
+    /**
+     * Update the levels data in state object
+     * @param data
+     */
+    var getLevels = data => data.filter(v => v.hasOwnProperty("note"))
+        .map(v =>({"label": m2n(v.note), "level": 100 / 127 * v.velocity}))
+
+
+    /**
+     * Reset the levels data in state object
+     */
+    var resetLevels = function () {
+        state.levels = [
+            {label: "--", level: "0"},
+            {label: "--", level: "0"},
+            {label: "--", level: "0"}
+        ]
     }
 
     /**
-     * Update the elapsed time since beginning the recordimg
-     *
-     * @returns {khl}
+     * Get the elapsed time since beginning the recordimg
      */
-    var updateTime = function () {
-        var time = new Date((new Date() - recStartTime) - 3600000)
-            .toTimeString()
-            .replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-        state.info.time = time;
-    }
+    var getUpdatedTime = () => new Date((new Date() - recStartTime) - 3600000)
+        .toTimeString()
+        .replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
 
     /**
      * Send current position to the server, receive back the calculated chord
      *
-     * @returns {khl}
      */
     var updatePos = function () {
         var number = "0000" + ( parseInt(state.info.number) + 1);
@@ -132,7 +147,8 @@
                     "&callback=?"
                 ].join(""))
                     .done(function (data) {
-                        updateGrid(data);
+                        state.grid.classname = getGridClassName(data);
+                        state.levels = getLevels(data);
                         console.log(data);
                     })
             }, function (err) {
@@ -153,22 +169,22 @@
     var KhlApp = React.createClass({
         clockHandle: 0,
         tick: 0,
-        getInitialState: function () {
-            return {data: state};
-        },
+        getInitialState: () => ({data: state}),
         // toggle handler to be passed to the status control
         toggleClock: function () {
             if (toggleRec()) {
-                initRec();
-                // start the clock
-                this.clockHandle = setInterval(() => {
-                    if (++this.tick > settings.ticks) {
-                        updatePos();
-                        this.tick = 0;
-                    }
-                    updateTime();
-                    this.setState(state);
-                }, 500)
+                // initialize recording
+                initRec(()=> {
+                    // start the clock
+                    this.clockHandle = setInterval(() => {
+                        if (++this.tick > settings.ticksPerUpdate) {
+                            updatePos();
+                            this.tick = 0;
+                        }
+                        state.info.time = getUpdatedTime();
+                        this.setState(state);
+                    }, settings.tickLength)
+                });
             } else {
                 endRec();
                 // stop the clock
@@ -192,16 +208,11 @@
      * Status component: has start toggle and status indicators
      */
     var StatusControl = React.createClass({
-        toggleHandler: function () {
-            if (typeof this.props.toggleHandler === 'function') {
-                this.props.toggleHandler(null);
-            }
-        },
         render: function () {
             return (
                 <div id="status" className={ this.props.data.status.classname.join(" ") }>
                     <div>
-                        <button id="toggle_rec" onClick={ this.toggleHandler }></button>
+                        <button id="toggle_rec" onClick={ this.props.toggleHandler }></button>
                     </div>
                     <StatusIndicator params={{label: "rec", id: "rec_indicator"}} />
                 {/*<StatusIndicator params={{label: "send", id: "send_indicator"}} />*/}
@@ -261,23 +272,33 @@
         render: function () {
             return (
                 <div id="level" className="control level">
-                    <div className="bar">C
-                        <div className="outer">
-                            <div className="inner" style={{width: 100 + "%"}}></div>
-                        </div>
-                    </div>
-                    <div className="bar">E
-                        <div className="outer">
-                            <div className="inner"></div>
-                        </div>
-                    </div>
-                    <div className="bar">G
-                        <div className="outer">
-                            <div className="inner"></div>
-                        </div>
-                    </div>
+                    <LevelBar params={{
+                        label: this.props.data.levels[0].label,
+                        level: this.props.data.levels[0].level
+                    }}  />
+                    <LevelBar params={{
+                        label: this.props.data.levels[1].label,
+                        level: this.props.data.levels[1].level
+                    }}  />
+                    <LevelBar params={{
+                        label: this.props.data.levels[2].label,
+                        level: this.props.data.levels[2].level
+                    }}  />
                 </div>
             );
+        }
+    });
+
+    var LevelBar = React.createClass({
+        render: function () {
+            return (
+                <div className="bar">
+                    <span className="label">{ this.props.params.label }</span>
+                    <div className="outer">
+                        <div className="inner" style={{width: this.props.params.level + "%"}}></div>
+                    </div>
+                </div>
+            )
         }
     });
 

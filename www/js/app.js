@@ -1,15 +1,6 @@
-'use strict';
+"use strict";
 
 (function () {
-    /**
-     * Midi to note name
-     *
-     * @param m
-     * @returns {string}
-     */
-    var m2n = function m2n(m) {
-        return ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'][m % 12];
-    };
 
     /**
      * Holds recording start time
@@ -24,7 +15,8 @@
     var settings = {
         //url: "https://khl4.localtunnel.me",
         url: "http://localhost:8080",
-        ticks: 10
+        ticksPerUpdate: 5,
+        tickLength: 500
     };
 
     /**
@@ -41,7 +33,18 @@
         },
         status: {
             classname: ["control"]
-        }
+        },
+        levels: [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }]
+    };
+
+    /**
+     * Midi note number to human readable note name
+     *
+     * @param m
+     * @returns {string}
+     */
+    var m2n = function m2n(m) {
+        return ['c', "c ♯", 'd', "d ♯", 'e', 'f', "f ♯", 'g', "g ♯", 'a', "a ♯", 'b'][m % 12];
     };
 
     /**
@@ -49,13 +52,10 @@
      *
      * @returns {khl}
      */
-    var initRec = function initRec() {
+    var initRec = function initRec(callback) {
         jQuery.getJSON(settings.url + "/recording/start?callback=?").done(function (data) {
-            console.log(state.info);
             state.info.rec_id = data.recording_id;
-            state.info.number = "0000";
-            state.info.time = "00:00:00";
-            console.log(data);
+            callback();
         });
     };
 
@@ -73,6 +73,7 @@
             state.status.classname = state.status.classname.filter(function (v) {
                 return v !== "recording";
             });
+            resetLevels();
             recStartTime = null;
         }
         return recStartTime !== null;
@@ -88,12 +89,10 @@
 
     /**
      * Translate the received data (the chord) into class names for the grid control
-     *
      * @param data
-     * @returns {khl}
      */
-    var updateGrid = function updateGrid(data) {
-        state.grid.classname = ["control"].concat(data.filter(function (v) {
+    var getGridClassName = function getGridClassName(data) {
+        return ["control"].concat(data.filter(function (v) {
             return v.hasOwnProperty("note");
         }).map(function (v) {
             return "midi" + v.note;
@@ -101,19 +100,34 @@
     };
 
     /**
-     * Update the elapsed time since beginning the recordimg
-     *
-     * @returns {khl}
+     * Update the levels data in state object
+     * @param data
      */
-    var updateTime = function updateTime() {
-        var time = new Date(new Date() - recStartTime - 3600000).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-        state.info.time = time;
+    var getLevels = function getLevels(data) {
+        return data.filter(function (v) {
+            return v.hasOwnProperty("note");
+        }).map(function (v) {
+            return { "label": m2n(v.note), "level": 100 / 127 * v.velocity };
+        });
+    };
+
+    /**
+     * Reset the levels data in state object
+     */
+    var resetLevels = function resetLevels() {
+        state.levels = [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }];
+    };
+
+    /**
+     * Get the elapsed time since beginning the recordimg
+     */
+    var getUpdatedTime = function getUpdatedTime() {
+        return new Date(new Date() - recStartTime - 3600000).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
     };
 
     /**
      * Send current position to the server, receive back the calculated chord
      *
-     * @returns {khl}
      */
     var updatePos = function updatePos() {
         var number = "0000" + (parseInt(state.info.number) + 1);
@@ -123,7 +137,8 @@
             var lon = pos.coords.longitude;
             var lat = pos.coords.latitude;
             jQuery.getJSON([settings.url, "/recording/node?nr=", state.info.number, "&rec_id=", state.info.rec_id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
-                updateGrid(data);
+                state.grid.classname = getGridClassName(data);
+                state.levels = getLevels(data);
                 console.log(data);
             });
         }, function (err) {
@@ -141,7 +156,7 @@
      * Root object for the app
      */
     var KhlApp = React.createClass({
-        displayName: 'KhlApp',
+        displayName: "KhlApp",
 
         clockHandle: 0,
         tick: 0,
@@ -153,16 +168,18 @@
             var _this = this;
 
             if (toggleRec()) {
-                initRec();
-                // start the clock
-                this.clockHandle = setInterval(function () {
-                    if (++_this.tick > settings.ticks) {
-                        updatePos();
-                        _this.tick = 0;
-                    }
-                    updateTime();
-                    _this.setState(state);
-                }, 500);
+                // initialize recording
+                initRec(function () {
+                    // start the clock
+                    _this.clockHandle = setInterval(function () {
+                        if (++_this.tick > settings.ticksPerUpdate) {
+                            updatePos();
+                            _this.tick = 0;
+                        }
+                        state.info.time = getUpdatedTime();
+                        _this.setState(state);
+                    }, settings.tickLength);
+                });
             } else {
                 endRec();
                 // stop the clock
@@ -172,8 +189,8 @@
         },
         render: function render() {
             return React.createElement(
-                'div',
-                { className: 'khlApp' },
+                "div",
+                { className: "khlApp" },
                 React.createElement(StatusControl, { data: this.state.data, toggleHandler: this.toggleClock }),
                 React.createElement(GridControl, { data: this.state.data }),
                 React.createElement(LevelControl, { data: this.state.data }),
@@ -186,21 +203,16 @@
      * Status component: has start toggle and status indicators
      */
     var StatusControl = React.createClass({
-        displayName: 'StatusControl',
+        displayName: "StatusControl",
 
-        toggleHandler: function toggleHandler() {
-            if (typeof this.props.toggleHandler === 'function') {
-                this.props.toggleHandler(null);
-            }
-        },
         render: function render() {
             return React.createElement(
-                'div',
-                { id: 'status', className: this.props.data.status.classname.join(" ") },
+                "div",
+                { id: "status", className: this.props.data.status.classname.join(" ") },
                 React.createElement(
-                    'div',
+                    "div",
                     null,
-                    React.createElement('button', { id: 'toggle_rec', onClick: this.toggleHandler })
+                    React.createElement("button", { id: "toggle_rec", onClick: this.props.toggleHandler })
                 ),
                 React.createElement(StatusIndicator, { params: { label: "rec", id: "rec_indicator" } })
             );
@@ -211,20 +223,20 @@
      * Status indicator: takes 2 params: label and id
      */
     var StatusIndicator = React.createClass({
-        displayName: 'StatusIndicator',
+        displayName: "StatusIndicator",
 
         render: function render() {
             return React.createElement(
-                'div',
-                { id: this.props.params.id, className: 'indicator' },
+                "div",
+                { id: this.props.params.id, className: "indicator" },
                 React.createElement(
-                    'svg',
-                    { viewBox: '0 0 10 10' },
-                    React.createElement('circle', { cx: '5', cy: '5', r: '4' })
+                    "svg",
+                    { viewBox: "0 0 10 10" },
+                    React.createElement("circle", { cx: "5", cy: "5", r: "4" })
                 ),
                 React.createElement(
-                    'span',
-                    { className: 'label' },
+                    "span",
+                    { className: "label" },
                     this.props.params.label
                 )
             );
@@ -235,69 +247,72 @@
      * Grid component, visual feedback
      */
     var GridControl = React.createClass({
-        displayName: 'GridControl',
+        displayName: "GridControl",
 
         render: function render() {
             return React.createElement(
-                'div',
-                { id: 'grid', className: this.props.data.grid.classname.join(" ") },
+                "div",
+                { id: "grid", className: this.props.data.grid.classname.join(" ") },
                 React.createElement(
-                    'svg',
-                    { viewBox: '0 0 264 128' },
-                    React.createElement('polyLine', { points: '192,12 12,12 42,64 72,12 102,64 132,12 162,64 192,12\r 222,64 42,64 72,116 102,64 132,116 162,64 192,116 222,64 252,116 72,116' }),
-                    React.createElement('circle', { id: 'c1', cx: '12', cy: '12', r: '10' }),
-                    React.createElement('circle', { id: 'c2', cx: '72', cy: '12', r: '10' }),
-                    React.createElement('circle', { id: 'c3', cx: '132', cy: '12', r: '10' }),
-                    React.createElement('circle', { id: 'c4', cx: '192', cy: '12', r: '10' }),
-                    React.createElement('circle', { id: 'c5', cx: '42', cy: '64', r: '10' }),
-                    React.createElement('circle', { id: 'c6', cx: '102', cy: '64', r: '10' }),
-                    React.createElement('circle', { id: 'c7', cx: '162', cy: '64', r: '10' }),
-                    React.createElement('circle', { id: 'c8', cx: '222', cy: '64', r: '10' }),
-                    React.createElement('circle', { id: 'c9', cx: '72', cy: '116', r: '10' }),
-                    React.createElement('circle', { id: 'c10', cx: '132', cy: '116', r: '10' }),
-                    React.createElement('circle', { id: 'c11', cx: '192', cy: '116', r: '10' }),
-                    React.createElement('circle', { id: 'c12', cx: '252', cy: '116', r: '10' })
+                    "svg",
+                    { viewBox: "0 0 264 128" },
+                    React.createElement("polyLine", { points: "192,12 12,12 42,64 72,12 102,64 132,12 162,64 192,12\r 222,64 42,64 72,116 102,64 132,116 162,64 192,116 222,64 252,116 72,116" }),
+                    React.createElement("circle", { id: "c1", cx: "12", cy: "12", r: "10" }),
+                    React.createElement("circle", { id: "c2", cx: "72", cy: "12", r: "10" }),
+                    React.createElement("circle", { id: "c3", cx: "132", cy: "12", r: "10" }),
+                    React.createElement("circle", { id: "c4", cx: "192", cy: "12", r: "10" }),
+                    React.createElement("circle", { id: "c5", cx: "42", cy: "64", r: "10" }),
+                    React.createElement("circle", { id: "c6", cx: "102", cy: "64", r: "10" }),
+                    React.createElement("circle", { id: "c7", cx: "162", cy: "64", r: "10" }),
+                    React.createElement("circle", { id: "c8", cx: "222", cy: "64", r: "10" }),
+                    React.createElement("circle", { id: "c9", cx: "72", cy: "116", r: "10" }),
+                    React.createElement("circle", { id: "c10", cx: "132", cy: "116", r: "10" }),
+                    React.createElement("circle", { id: "c11", cx: "192", cy: "116", r: "10" }),
+                    React.createElement("circle", { id: "c12", cx: "252", cy: "116", r: "10" })
                 )
             );
         }
     });
 
     var LevelControl = React.createClass({
-        displayName: 'LevelControl',
+        displayName: "LevelControl",
 
         render: function render() {
             return React.createElement(
-                'div',
-                { id: 'level', className: 'control level' },
+                "div",
+                { id: "level", className: "control level" },
+                React.createElement(LevelBar, { params: {
+                        label: this.props.data.levels[0].label,
+                        level: this.props.data.levels[0].level
+                    } }),
+                React.createElement(LevelBar, { params: {
+                        label: this.props.data.levels[1].label,
+                        level: this.props.data.levels[1].level
+                    } }),
+                React.createElement(LevelBar, { params: {
+                        label: this.props.data.levels[2].label,
+                        level: this.props.data.levels[2].level
+                    } })
+            );
+        }
+    });
+
+    var LevelBar = React.createClass({
+        displayName: "LevelBar",
+
+        render: function render() {
+            return React.createElement(
+                "div",
+                { className: "bar" },
                 React.createElement(
-                    'div',
-                    { className: 'bar' },
-                    'C',
-                    React.createElement(
-                        'div',
-                        { className: 'outer' },
-                        React.createElement('div', { className: 'inner', style: { width: 100 + "%" } })
-                    )
+                    "span",
+                    { className: "label" },
+                    this.props.params.label
                 ),
                 React.createElement(
-                    'div',
-                    { className: 'bar' },
-                    'E',
-                    React.createElement(
-                        'div',
-                        { className: 'outer' },
-                        React.createElement('div', { className: 'inner' })
-                    )
-                ),
-                React.createElement(
-                    'div',
-                    { className: 'bar' },
-                    'G',
-                    React.createElement(
-                        'div',
-                        { className: 'outer' },
-                        React.createElement('div', { className: 'inner' })
-                    )
+                    "div",
+                    { className: "outer" },
+                    React.createElement("div", { className: "inner", style: { width: this.props.params.level + "%" } })
                 )
             );
         }
@@ -307,27 +322,27 @@
      * Clock component, textual feedback
      */
     var InfoControl = React.createClass({
-        displayName: 'InfoControl',
+        displayName: "InfoControl",
 
         render: function render() {
             //console.log("InfoControl render", this.props.data)
             return React.createElement(
-                'div',
-                { id: 'info', className: 'control' },
+                "div",
+                { id: "info", className: "control" },
                 React.createElement(
-                    'div',
-                    { id: 'rec_id' },
-                    'id: ',
+                    "div",
+                    { id: "rec_id" },
+                    "id: ",
                     this.props.data.info.rec_id
                 ),
                 React.createElement(
-                    'div',
-                    { id: 'number' },
+                    "div",
+                    { id: "number" },
                     this.props.data.info.number
                 ),
                 React.createElement(
-                    'div',
-                    { id: 'time' },
+                    "div",
+                    { id: "time" },
                     this.props.data.info.time
                 )
             );
