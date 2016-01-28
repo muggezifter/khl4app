@@ -11,8 +11,8 @@
      * ticks: How many ticks between requests. 1 tick is ~ 500ms
      */
     var settings = {
-        //url: "https://khl4.localtunnel.me",
-        url: "http://localhost:8080",
+        url: "https://khl4.localtunnel.me",
+        //url: "http://localhost:8080",
         ticksPerUpdate: 20,
         tickLength: 500
     }
