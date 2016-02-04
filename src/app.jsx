@@ -32,6 +32,9 @@
         status: {
             classname: ["control"]
         },
+        settings: {
+            classname: ["control"]
+        },
         levels: [
             {label: "--", level: "0"},
             {label: "--", level: "0"},
@@ -79,6 +82,7 @@
         }
         return (recStartTime !== null);
     }
+
 
     /**
      * End recording
@@ -197,10 +201,20 @@
             }
             this.setState(state);
         },
+        toggleSettings: function () {
+            if (state.settings.classname.indexOf("open") < 0) {
+                state.settings.classname.push("open");
+            } else {
+                state.settings.classname = ["control"]
+            }
+            console.log(state.settings.classname);
+            this.setState(state);
+        },
         render: function () {
             return (
                 <div className="khlApp">
-                    <StatusControl data={ this.state.data } toggleHandler= { this.toggleClock } />
+                    <StatusControl data={ this.state.data } toggleHandler= { this.toggleClock } toggleSettings= { this.toggleSettings } />
+                    <SettingsControl data={ this.state.data } />
                     <GridControl data={ this.state.data } />
                     <LevelControl data = { this.state.data} />
                     <InfoControl data={ this.state.data } />
@@ -221,6 +235,7 @@
                     </div>
                     <StatusIndicator params={{label: "rec", id: "rec_indicator"}} />
                 {/*<StatusIndicator params={{label: "send", id: "send_indicator"}} />*/}
+                    <SettingsToggleButton toggleHandler={ this.props.toggleSettings }/>
                 </div>
             );
         }
@@ -237,6 +252,38 @@
                         <circle cx="5" cy="5" r="4"/>
                     </svg>
                     <span className="label">{ this.props.params.label }</span>
+                </div>
+            );
+        }
+    });
+
+    /**
+     * Button for toggling the visibility of the settings area
+     */
+    var SettingsToggleButton = React.createClass({
+        render: function () {
+            return (
+                <button id="toggle_settings"  onClick={ this.props.toggleHandler }>
+                    <svg viewBox="0 0 25 25" >
+                        <path d="M20,14.5v-2.9l-1.8-0.3c-0.1-0.4-0.3-0.8-0.6-1.4l1.1-1.5l-2.1-2.1l-1.5,1.1c-0.5-0.3-1-0.5-1.4-0.6L13.5,5h-2.9l-0.3,1.8
+	C9.8,6.9,9.4,7.1,8.9,7.4L7.4,6.3L5.3,8.4l1,1.5c-0.3,0.5-0.4,0.9-0.6,1.4L4,11.5v2.9l1.8,0.3c0.1,0.5,0.3,0.9,0.6,1.4l-1,1.5
+	l2.1,2.1l1.5-1c0.4,0.2,0.9,0.4,1.4,0.6l0.3,1.8h3l0.3-1.8c0.5-0.1,0.9-0.3,1.4-0.6l1.5,1.1l2.1-2.1l-1.1-1.5c0.3-0.5,0.5-1,0.6-1.4
+	L20,14.5z M12,16c-1.7,0-3-1.3-3-3s1.3-3,3-3s3,1.3,3,3S13.7,16,12,16z"/>
+                    </svg>
+                </button>
+            );
+        }
+    });
+
+
+
+    /**
+     * Grid component, visual feedback
+     */
+    var SettingsControl = React.createClass({
+        render: function () {
+            return (
+                <div id="settings" className={ this.props.data.settings.classname.join(" ") }>
                 </div>
             );
         }
@@ -329,16 +376,6 @@
         document.getElementById('container')
     );
 
+
 }());
 
-/*
- 1446585716501:/khl?nr=0001&lat=51.8861799&lon=4.4625571&callback=jQuery211049043411714956164_1446585704690&_=1446585704691
- 1446585718036:/khl?nr=0002&lat=51.8861794&lon=4.462556&callback=jQuery211049043411714956164_1446585704690&_=1446585704692
- 1446585724079:/khl?nr=0003&lat=51.8861794&lon=4.462556&callback=jQuery211049043411714956164_1446585704690&_=1446585704693
- 1446585729267:/khl?nr=0004&lat=51.8861794&lon=4.462556&callback=jQuery211049043411714956164_1446585704690&_=1446585704694
- 1446585735273:/khl?nr=0005&lat=51.8861794&lon=4.462556&callback=jQuery211049043411714956164_1446585704690&_=1446585704695
- 1446585740362:/khl?nr=0006&lat=51.8861794&lon=4.462556&callback=jQuery211049043411714956164_1446585704690&_=1446585704696
- 1446585746402:/khl?nr=0007&lat=51.8861794&lon=4.462556&callback=jQuery211049043411714956164_1446585704690&_=1446585704697
- 1446585751317:/khl?nr=0008&lat=51.8861794&lon=4.462556&callback=jQuery211049043411714956164_1446585704690&_=1446585704698
- 1446585757330:/khl?nr=0009&lat=51.8861794&lon=4.462556&callback=jQuery211049043411714956164_1446585704690&_=1446585704699
- */
