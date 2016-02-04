@@ -11,7 +11,6 @@
      * ticks: How many ticks between requests. 1 tick is ~ 500ms
      */
     var settings = {
-        url: "https://khl4.localtunnel.me",
         //url: "http://localhost:8080",
         ticksPerUpdate: 20,
         tickLength: 500
@@ -39,7 +38,8 @@
             {label: "--", level: "0"},
             {label: "--", level: "0"},
             {label: "--", level: "0"}
-        ]
+        ],
+        url: "https://khl4.localtunnel.me"
     }
 
     /**
@@ -56,7 +56,7 @@
      * @returns {khl}
      */
     var initRec = callback => {
-        jQuery.getJSON(settings.url + "/recording/start?callback=?")
+        jQuery.getJSON(state.url + "/recording/start?callback=?")
             .done(data => {
                 state.info.rec_id = data.recording_id;
                 callback();
@@ -88,7 +88,7 @@
      * End recording
      */
     var endRec = callback => {
-        jQuery.getJSON(settings.url + "/recording/stop?rec_id=" + state.info.rec_id + "&callback=?")
+        jQuery.getJSON(state.url + "/recording/stop?rec_id=" + state.info.rec_id + "&callback=?")
             .done(data => {
                 console.log(data);
                 state.grid.classname = ["control"];
@@ -146,7 +146,7 @@
                 var lon = pos.coords.longitude;
                 var lat = pos.coords.latitude;
                 jQuery.getJSON([
-                    settings.url,
+                    state.url,
                     "/recording/node?nr=", state.info.number,
                     "&rec_id=", state.info.rec_id,
                     "&lat=", lat,
@@ -210,11 +210,15 @@
             console.log(state.settings.classname);
             this.setState(state);
         },
+        changeUrl: function (url) {
+            state.url = url;
+            this.setState(state);
+        },
         render: function () {
             return (
                 <div className="khlApp">
                     <StatusControl data={ this.state.data } toggleHandler= { this.toggleClock } toggleSettings= { this.toggleSettings } />
-                    <SettingsControl data={ this.state.data } />
+                    <SettingsControl data={ this.state.data } changeUrlHandler = { this.changeUrl } />
                     <GridControl data={ this.state.data } />
                     <LevelControl data = { this.state.data} />
                     <InfoControl data={ this.state.data } />
@@ -284,7 +288,19 @@
         render: function () {
             return (
                 <div id="settings" className={ this.props.data.settings.classname.join(" ") }>
-                </div>
+                   <UrlInputControl data={ this.props.data } changeUrlHandler={ this.props.changeUrlHandler } />
+                 </div>
+            );
+        }
+    });
+
+    var UrlInputControl = React.createClass({
+        handleChange: function(event) {
+            this.props.changeUrlHandler(event.target.value);
+        },
+        render: function () {
+            return (
+                <input type="text" id="server_url" value={ this.props.data.url }  onChange={this.handleChange} />
             );
         }
     });

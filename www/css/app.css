@@ -40,6 +40,11 @@ body {
 #settings.open {
     display: block;
 }
+#settings input#server_url {
+
+    width: 100%;
+    font-size: 0.7em;
+}
 
 #grid {
     height: 7.6em;

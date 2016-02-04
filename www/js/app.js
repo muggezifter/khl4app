@@ -13,7 +13,6 @@
      * ticks: How many ticks between requests. 1 tick is ~ 500ms
      */
     var settings = {
-        url: "https://khl4.localtunnel.me",
         //url: "http://localhost:8080",
         ticksPerUpdate: 20,
         tickLength: 500
@@ -37,7 +36,8 @@
         settings: {
             classname: ["control"]
         },
-        levels: [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }]
+        levels: [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }],
+        url: "https://khl4.localtunnel.me"
     };
 
     /**
@@ -56,7 +56,7 @@
      * @returns {khl}
      */
     var initRec = function initRec(callback) {
-        jQuery.getJSON(settings.url + "/recording/start?callback=?").done(function (data) {
+        jQuery.getJSON(state.url + "/recording/start?callback=?").done(function (data) {
             state.info.rec_id = data.recording_id;
             callback();
         });
@@ -86,7 +86,7 @@
      * End recording
      */
     var endRec = function endRec(callback) {
-        jQuery.getJSON(settings.url + "/recording/stop?rec_id=" + state.info.rec_id + "&callback=?").done(function (data) {
+        jQuery.getJSON(state.url + "/recording/stop?rec_id=" + state.info.rec_id + "&callback=?").done(function (data) {
             console.log(data);
             state.grid.classname = ["control"];
             state.info.rec_id = "[not recording]";
@@ -143,7 +143,7 @@
         navigator.geolocation.getCurrentPosition(function (pos) {
             var lon = pos.coords.longitude;
             var lat = pos.coords.latitude;
-            jQuery.getJSON([settings.url, "/recording/node?nr=", state.info.number, "&rec_id=", state.info.rec_id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
+            jQuery.getJSON([state.url, "/recording/node?nr=", state.info.number, "&rec_id=", state.info.rec_id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
                 state.grid.classname = getGridClassName(data);
                 state.levels = getLevels(data);
                 console.log(data);
@@ -205,12 +205,16 @@
             console.log(state.settings.classname);
             this.setState(state);
         },
+        changeUrl: function changeUrl(url) {
+            state.url = url;
+            this.setState(state);
+        },
         render: function render() {
             return React.createElement(
                 "div",
                 { className: "khlApp" },
                 React.createElement(StatusControl, { data: this.state.data, toggleHandler: this.toggleClock, toggleSettings: this.toggleSettings }),
-                React.createElement(SettingsControl, { data: this.state.data }),
+                React.createElement(SettingsControl, { data: this.state.data, changeUrlHandler: this.changeUrl }),
                 React.createElement(GridControl, { data: this.state.data }),
                 React.createElement(LevelControl, { data: this.state.data }),
                 React.createElement(InfoControl, { data: this.state.data })
@@ -289,7 +293,22 @@
         displayName: "SettingsControl",
 
         render: function render() {
-            return React.createElement("div", { id: "settings", className: this.props.data.settings.classname.join(" ") });
+            return React.createElement(
+                "div",
+                { id: "settings", className: this.props.data.settings.classname.join(" ") },
+                React.createElement(UrlInputControl, { data: this.props.data, changeUrlHandler: this.props.changeUrlHandler })
+            );
+        }
+    });
+
+    var UrlInputControl = React.createClass({
+        displayName: "UrlInputControl",
+
+        handleChange: function handleChange(event) {
+            this.props.changeUrlHandler(event.target.value);
+        },
+        render: function render() {
+            return React.createElement("input", { type: "text", id: "server_url", value: this.props.data.url, onChange: this.handleChange });
         }
     });
 
