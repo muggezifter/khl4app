@@ -39,7 +39,7 @@
             {label: "--", level: "0"},
             {label: "--", level: "0"}
         ],
-        url: "https://khl4.localtunnel.me"
+        url: localStorage.getItem("url") || "https://khl4.ngrok.io"
     }
 
     /**
@@ -211,6 +211,7 @@
             this.setState(state);
         },
         changeUrl: function (url) {
+            localStorage.setItem("url", url);
             state.url = url;
             this.setState(state);
         },
