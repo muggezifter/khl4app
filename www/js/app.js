@@ -28,7 +28,8 @@
             time: "00:00:00"
         },
         grid: {
-            classname: ["control"]
+            classname: ["control"],
+            id: localStorage.getItem("grid_id") || "G0001"
         },
         status: {
             classname: ["control"]
@@ -56,7 +57,7 @@
      * @returns {khl}
      */
     var initRec = function initRec(callback) {
-        jQuery.getJSON(state.url + "/recording/start?callback=?").done(function (data) {
+        jQuery.getJSON(state.url + "/recording/start?grid=" + state.grid.id + "&callback=?").done(function (data) {
             state.info.rec_id = data.recording_id;
             callback();
         });
@@ -165,7 +166,7 @@
     var KhlApp = React.createClass({
         displayName: "KhlApp",
 
-        clockHandle: 0,
+        clockIntervalID: 0,
         tick: 0,
         getInitialState: function getInitialState() {
             return { data: state };
@@ -178,7 +179,7 @@
                 // initialize recording
                 initRec(function () {
                     // start the clock
-                    _this.clockHandle = setInterval(function () {
+                    _this.clockIntervalID = setInterval(function () {
                         if (++_this.tick > settings.ticksPerUpdate) {
                             updatePos();
                             _this.tick = 0;
@@ -189,7 +190,7 @@
                 });
             } else {
                 // stop the clock
-                clearInterval(this.clockHandle);
+                clearInterval(this.clockIntervalID);
                 endRec(function () {
                     _this.setState(state);
                 });
@@ -210,12 +211,18 @@
             state.url = url;
             this.setState(state);
         },
+        changeGrid: function changeGrid(grid_id) {
+            alert(grid_id);
+            localStorage.setItem("grid_id", grid_id);
+            state.grid.id = grid_id;
+            this.setState(state);
+        },
         render: function render() {
             return React.createElement(
                 "div",
                 { className: "khlApp" },
                 React.createElement(StatusControl, { data: this.state.data, toggleHandler: this.toggleClock, toggleSettings: this.toggleSettings }),
-                React.createElement(SettingsControl, { data: this.state.data, changeUrlHandler: this.changeUrl }),
+                React.createElement(SettingsControl, { data: this.state.data, changeUrlHandler: this.changeUrl, changeGridHandler: this.changeGrid }),
                 React.createElement(GridControl, { data: this.state.data }),
                 React.createElement(LevelControl, { data: this.state.data }),
                 React.createElement(InfoControl, { data: this.state.data })
@@ -297,7 +304,8 @@
             return React.createElement(
                 "div",
                 { id: "settings", className: this.props.data.settings.classname.join(" ") },
-                React.createElement(UrlInputControl, { data: this.props.data, changeUrlHandler: this.props.changeUrlHandler })
+                React.createElement(UrlInputControl, { data: this.props.data, changeUrlHandler: this.props.changeUrlHandler }),
+                React.createElement(GridInputControl, { data: this.props.data, changeGridHandler: this.props.changeGridHandler })
             );
         }
     });
@@ -310,6 +318,17 @@
         },
         render: function render() {
             return React.createElement("input", { type: "text", id: "server_url", value: this.props.data.url, onChange: this.handleChange });
+        }
+    });
+
+    var GridInputControl = React.createClass({
+        displayName: "GridInputControl",
+
+        handleChange: function handleChange(event) {
+            this.props.changeGridHandler(event.target.value);
+        },
+        render: function render() {
+            return React.createElement("input", { type: "text", id: "grid_id", value: this.props.data.grid.id, onChange: this.handleChange });
         }
     });
 

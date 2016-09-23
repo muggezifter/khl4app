@@ -26,7 +26,8 @@
             time: "00:00:00"
         },
         grid: {
-            classname: ["control"]
+            classname: ["control"],
+            id: localStorage.getItem("grid_id") || "G0001"
         },
         status: {
             classname: ["control"]
@@ -56,7 +57,7 @@
      * @returns {khl}
      */
     var initRec = callback => {
-        jQuery.getJSON(state.url + "/recording/start?callback=?")
+        jQuery.getJSON(state.url + "/recording/start?grid=" + state.grid.id + "&callback=?")
             .done(data => {
                 state.info.rec_id = data.recording_id;
                 callback();
@@ -174,7 +175,7 @@
      * Root object for the app
      */
     var KhlApp = React.createClass({
-        clockHandle: 0,
+        clockIntervalID: 0,
         tick: 0,
         getInitialState: () => ({data: state}),
         // toggle handler to be passed to the status control
@@ -183,7 +184,7 @@
                 // initialize recording
                 initRec(()=> {
                     // start the clock
-                    this.clockHandle = setInterval(() => {
+                    this.clockIntervalID = setInterval(() => {
                         if (++this.tick > settings.ticksPerUpdate) {
                             updatePos();
                             this.tick = 0;
@@ -194,7 +195,7 @@
                 });
             } else {
                 // stop the clock
-                clearInterval(this.clockHandle);
+                clearInterval(this.clockIntervalID);
                 endRec(() => {
                     this.setState(state)
                 });
@@ -215,11 +216,17 @@
             state.url = url;
             this.setState(state);
         },
+        changeGrid: function(grid_id) {
+        alert(grid_id);
+            localStorage.setItem("grid_id", grid_id);
+            state.grid.id = grid_id;
+            this.setState(state)
+        },
         render: function () {
             return (
                 <div className="khlApp">
-                    <StatusControl data={ this.state.data } toggleHandler= { this.toggleClock } toggleSettings= { this.toggleSettings } />
-                    <SettingsControl data={ this.state.data } changeUrlHandler = { this.changeUrl } />
+                    <StatusControl data={ this.state.data } toggleHandler = { this.toggleClock } toggleSettings = { this.toggleSettings } />
+                    <SettingsControl data={ this.state.data } changeUrlHandler = { this.changeUrl } changeGridHandler = { this.changeGrid } />
                     <GridControl data={ this.state.data } />
                     <LevelControl data = { this.state.data} />
                     <InfoControl data={ this.state.data } />
@@ -290,7 +297,8 @@
             return (
                 <div id="settings" className={ this.props.data.settings.classname.join(" ") }>
                    <UrlInputControl data={ this.props.data } changeUrlHandler={ this.props.changeUrlHandler } />
-                 </div>
+                   <GridInputControl data={ this.props.data } changeGridHandler={ this.props.changeGridHandler } />
+                </div>
             );
         }
     });
@@ -302,6 +310,17 @@
         render: function () {
             return (
                 <input type="text" id="server_url" value={ this.props.data.url }  onChange={this.handleChange} />
+            );
+        }
+    });
+
+    var GridInputControl = React.createClass({
+        handleChange: function(event) {
+            this.props.changeGridHandler(event.target.value);
+        },
+        render: function () {
+            return (
+                <input type="text" id="grid_id" value={ this.props.data.grid.id }  onChange={this.handleChange} />
             );
         }
     });

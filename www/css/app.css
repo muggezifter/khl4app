@@ -43,10 +43,12 @@ body {
 #settings.open {
     display: block;
 }
-#settings input#server_url {
-
+#settings input#server_url,
+#settings input#grid_id
+{
     width: 100%;
     font-size: 0.7em;
+    margin-bottom: 0.5em;
 }
 
 #grid {
