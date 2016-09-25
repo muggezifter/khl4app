@@ -135,7 +135,6 @@
 
     /**
      * Send current position to the server, receive back the calculated chord
-     *
      */
     var updatePos = function updatePos() {
         var number = "0000" + (parseInt(state.info.number) + 1);
@@ -144,7 +143,7 @@
         navigator.geolocation.getCurrentPosition(function (pos) {
             var lon = pos.coords.longitude;
             var lat = pos.coords.latitude;
-            jQuery.getJSON([state.url, "/recording/node?nr=", state.info.number, "&rec_id=", state.info.rec_id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
+            jQuery.getJSON([state.url, "/recording/node?nr=", state.info.number, "&rec_id=", state.info.rec_id, "&grid_id=", state.grid.id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
                 state.grid.classname = getGridClassName(data);
                 state.levels = getLevels(data);
                 console.log(data);

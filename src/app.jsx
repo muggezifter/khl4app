@@ -115,7 +115,8 @@
      * @param data
      */
     var getLevels = data => data.filter(v => v.hasOwnProperty("note"))
-        .map(v =>({"label": m2n(v.note), "level": 100 / 127 * v.velocity}));
+        .map(v =>({"label": m2n(v.note), "level": 100 / 127 * v.velocity})
+    );
 
 
     /**
@@ -136,7 +137,6 @@
 
     /**
      * Send current position to the server, receive back the calculated chord
-     *
      */
     var updatePos = function () {
         var number = "0000" + ( parseInt(state.info.number) + 1);
@@ -150,6 +150,7 @@
                     state.url,
                     "/recording/node?nr=", state.info.number,
                     "&rec_id=", state.info.rec_id,
+                    "&grid_id=", state.grid.id,
                     "&lat=", lat,
                     "&lon=", lon,
                     "&callback=?"
