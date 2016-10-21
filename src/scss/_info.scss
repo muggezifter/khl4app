@@ -1,0 +1,25 @@
+
+&#info {
+    padding: 0 1em;
+    >div {
+        float: left;
+        width: 50%;
+        color: $control-dark-fg-color;
+        &#rec_id {
+            padding-bottom: 0.3em;
+            width: 100%;
+        }
+        span {
+            color: $control-dark-fg-color;
+            :nth-last-of-type(1) {
+                float: right;
+            }
+        }
+        #number::before {
+            content: "#";
+        }
+        #time {
+            text-align: right;
+        }
+    }
+}

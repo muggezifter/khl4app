@@ -1,205 +1,188 @@
-
 * {
-    font-size: 13px;
-    box-sizing: border-box;
-    font-family: arial, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    color: #999;
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important;
-    -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
-    outline: none !important;
+  font-size: 13px;
+  box-sizing: border-box;
+  font-family: arial, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #999;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important;
+  -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
+  outline: none !important;
 }
 
-@media (min-width: 200px) { * { font-size: 15px; }}
-@media (min-width: 300px) { * { font-size: 22.5px; }}
-@media (min-width: 400px) { * { font-size: 30px; }}
-@media (min-width: 500px) { * { font-size: 37.5px; }}
-@media (min-width: 600px) { * { font-size: 45px; }}
-@media (min-width: 700px) { * { font-size: 52.5px; }}
-@media (min-width: 800px) { * {  font-size: 60px; }}
-
+@media (min-width: 200px) {
+  * {
+    font-size: 15px;
+  }
+}
+@media (min-width: 300px) {
+  * {
+    font-size: 22.5px;
+  }
+}
+@media (min-width: 400px) {
+  * {
+    font-size: 30px;
+  }
+}
+@media (min-width: 500px) {
+  * {
+    font-size: 37.5px;
+  }
+}
+@media (min-width: 600px) {
+  * {
+    font-size: 45px;
+  }
+}
+@media (min-width: 700px) {
+  * {
+    font-size: 52.5px;
+  }
+}
+@media (min-width: 800px) {
+  * {
+    font-size: 60px;
+  }
+}
 body {
-    background-color: #999;
-    margin: 0;
-    padding: 0.33em;
+  background-color: #999;
+  margin: 0;
+  padding: 0.33em;
+}
+body .control {
+  background-color: #f0f0f0;
+  border: 0.7em solid #f0f0f0;
+  border-radius: 0.33em;
+  margin-bottom: 0.33em;
+  overflow: hidden;
+  /* grid control: */
+}
+body .control.dark {
+  border-color: #666;
+  background-color: #666;
+}
+body .control#status {
+  height: 3em;
+  overflow: visible;
+}
+body .control#status > div {
+  float: left;
+  text-align: center;
+  width: 33%;
+}
+body .control#status > div button {
+  border: 0.1em solid #999;
+  padding: 0 1em 2px;
+  border-radius: 0.8em;
+  background-color: inherit;
+}
+body .control#status > div button#toggle_settings {
+  float: right;
+  margin-right: 0.2em;
+  border: none;
+  height: 1.4em;
+  width: 1.4em;
+  padding: 0.1em;
+  margin: 0;
+}
+body .control#status > div button#toggle_settings svg {
+  margin-top: -0.2em;
+  margin-left: -0.2em;
+  width: 1.6em;
+  fill: #999;
+}
+body .control#status > div button#toggle_rec::after {
+  content: "start";
+}
+body .control#status > div.indicator svg {
+  width: 0.5em;
+  vertical-align: middle;
+}
+body .control#status > div.indicator svg circle {
+  float: left;
+  stroke: #999;
+  stroke-width: 2;
+  fill: #f0f0f0;
+}
+body .control#status > div.indicator .label {
+  padding-left: 0.3em;
+}
+body .control#status.recording button#toggle_rec::after {
+  content: "stop";
+}
+body .control#status.recording #rec_indicator circle {
+  fill: #ff9933;
+}
+body .control#status.sending #send_indicator circle {
+  fill: #ff9933;
+}
+body .control#settings {
+  display: none;
+}
+body .control#settings.open {
+  display: block;
+}
+body .control#settings input {
+  width: 100%;
+  font-size: 0.7em;
+  margin-bottom: 0.5em;
+}
+body .control#grid svg {
+  width: 100%;
+  height: auto;
+  margin-bottom: 0;
+}
+body .control#grid svg circle, body .control#grid svg polyline {
+  stroke: #999;
+  stroke-width: 2;
+  fill: #f0f0f0;
+}
+body .control#grid.midi64 #c1, body .control#grid.midi67 #c2, body .control#grid.midi70 #c3, body .control#grid.midi61 #c4, body .control#grid.midi71 #c5, body .control#grid.midi62 #c6, body .control#grid.midi65 #c7, body .control#grid.midi68 #c8, body .control#grid.midi66 #c9, body .control#grid.midi69 #c10, body .control#grid.midi60 #c11, body .control#grid.midi63 #c12 {
+  fill: #ff9933;
+}
+body .control#level .bar {
+  font-size: 0.5rem;
+}
+body .control#level .bar .outer {
+  float: right;
+  width: 85%;
+  height: 0.6em;
+  border: 0.1em solid #999;
+  margin-top: 0.25em;
+}
+body .control#level .bar .bar .inner {
+  width: 40%;
+  height: 100%;
+  background-color: #ff9933;
+}
+body .control#level .bar:first-child {
+  margin-top: -0.2em;
+}
+body .control#level .bar:last-child {
+  margin-bottom: -0.2em;
+}
+body .control#info {
+  padding: 0 1em;
+}
+body .control#info > div {
+  float: left;
+  width: 50%;
+  color: #ff9933;
+}
+body .control#info > div#rec_id {
+  padding-bottom: 0.3em;
+  width: 100%;
+}
+body .control#info > div span {
+  color: #ff9933;
+}
+body .control#info > div span :nth-last-of-type(1) {
+  float: right;
+}
+body .control#info > div #number::before {
+  content: "#";
+}
+body .control#info > div #time {
+  text-align: right;
 }
 
-.control {
-    background-color: #f0f0f0;
-    border: 0.7em solid #f0f0f0;
-    border-radius: 0.33em;
-    margin-bottom: 0.33em;
-    overflow: hidden;
-}
-
-#status {
-    height: 3em;
-    overflow: visible;
-}
-
-#settings {
-   display: none;
-}
-
-#settings.open {
-    display: block;
-}
-#settings input#server_url,
-#settings input#grid_id
-{
-    width: 100%;
-    font-size: 0.7em;
-    margin-bottom: 0.5em;
-}
-
-#grid {
-    height: 7.6em;
-}
-
-/* clock control: */
-#info {
-    /*border-color: #000;*/
-    border-color: #666;
-    /*background-color: #000;*/
-    background-color: #666;
-    padding: 0 1em;
-}
-
-
-#number::before {
-    content: "#";
-}
-
-#info > div#rec_id {
-    padding-bottom: 0.3em;
-    width: 100%;
-}
-
-#info > div {
-    float: left;
-    width: 50%;
-    /*color: #0f0;*/
-    color: #ff9933;
-}
-
-#info span {
-    color: #ff9933;
-}
-
-#info span:nth-last-of-type(1) {
-    float: right;
-}
-
-
-#time {
-    text-align: right;
-}
-
-/* status control: */
-#status > div {
-    float: left;
-    text-align: center;
-    width: 33%
-}
-
-.indicator svg {
-    width: 0.5em;
-    vertical-align: middle;
-}
-.indicator .label {
-    padding-left: 0.3em;
-}
-
-.indicator circle {
-    float: left;
-    stroke: #999;
-    stroke-width: 2;
-    fill: #f0f0f0;
-}
-
-#level .bar {
-    font-size: 0.5rem;
-}
-
-#level .bar:first-child {
-    margin-top: -0.2em;
-}
-
-#level .bar:last-child {
-    margin-bottom: -0.2em;
-}
-
-#level .bar .outer {
-    float: right;
-    width: 85%;
-    height: 0.6em;
-    border: 0.1em solid #999;
-    margin-top: 0.25em;
-}
-#level .bar .inner {
-    width: 40%;
-    height: 100%;
-    background-color: #ff9933;
-}
-
-/* grid control: */
-#grid svg {
-    width: 100%;
-    height: auto;
-    margin-bottom: 0;
-}
-
-#grid circle, #grid polyline {
-    stroke: #999;
-    stroke-width: 2;
-    fill: #f0f0f0;
-}
-
-#toggle_rec::after {
-    content: "start";
-}
-
-.recording #toggle_rec::after {
-    content: "stop";
-}
-
-button {
-    border: 0.1em solid #999;
-    padding: 0 1em 2px;
-    border-radius: 0.8em;
-    background-color: inherit;
-
-}
-button#toggle_settings {
-    float: right;
-    margin-right: 0.2em;
-    border: none;
-    height: 80px;
-    width: 80px;
-    padding: 0px;
-    margin-top: -16px;
-
-    /*background-image: url("/img/Gear_icon.svg");*/
-}
-
-button#toggle_settings svg{
-    width: 100%;
-    fill: #999;
-}
-
-
-.recording #rec_indicator circle,
-.sending #send_indicator circle,
-#grid.midi64 #c1,
-#grid.midi67 #c2,
-#grid.midi70 #c3,
-#grid.midi61 #c4,
-#grid.midi71 #c5,
-#grid.midi62 #c6,
-#grid.midi65 #c7,
-#grid.midi68 #c8,
-#grid.midi66 #c9,
-#grid.midi69 #c10,
-#grid.midi60 #c11,
-#grid.midi63 #c12 {
-    fill: #ff9933
-}
+/*# sourceMappingURL=app.css.map */

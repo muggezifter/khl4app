@@ -1,0 +1,27 @@
+/* grid control: */
+&#grid { 
+    svg {
+        width: 100%;
+        height: auto;
+        margin-bottom: 0;
+        circle,polyline {
+            stroke: $fg-color;
+            stroke-width: 2;
+            fill: $control-bg-color;
+        }
+    }
+    &.midi64 #c1,
+    &.midi67 #c2,
+    &.midi70 #c3,
+    &.midi61 #c4,
+    &.midi71 #c5,
+    &.midi62 #c6,
+    &.midi65 #c7,
+    &.midi68 #c8,
+    &.midi66 #c9,
+    &.midi69 #c10,
+    &.midi60 #c11,
+    &.midi63 #c12 {
+        fill: $indicator-color
+    }
+}

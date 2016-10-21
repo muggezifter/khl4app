@@ -1,7 +1,6 @@
 "use strict";
 
 (function () {
-
     /**
      * Holds recording start time
      */
@@ -244,7 +243,11 @@
                     React.createElement("button", { id: "toggle_rec", onClick: this.props.toggleHandler })
                 ),
                 React.createElement(StatusIndicator, { params: { label: "rec", id: "rec_indicator" } }),
-                React.createElement(SettingsToggleButton, { toggleHandler: this.props.toggleSettings })
+                React.createElement(
+                    "div",
+                    null,
+                    React.createElement(SettingsToggleButton, { toggleHandler: this.props.toggleSettings })
+                )
             );
         }
     });
@@ -415,7 +418,7 @@
             //console.log("InfoControl render", this.props.data)
             return React.createElement(
                 "div",
-                { id: "info", className: "control" },
+                { id: "info", className: "control dark" },
                 React.createElement(
                     "div",
                     { id: "rec_id" },

@@ -10,6 +10,14 @@ grunt.initConfig({
             options: {
                 interrupt: true,
             }
+        },
+        styles: {
+            files: '**/*.scss',
+            tasks: ['sass'],
+            options: {
+                interrupt: true,
+            }
+
         }
     },
     babel: {
@@ -22,8 +30,19 @@ grunt.initConfig({
                 'www/js/app.js': 'src/app.jsx'
             }
         }
-    }
+    },
+    sass: {
+        options: {
+                style: 'expanded',
+                compass: true
+        },
+        dist: {
+            files: {
+                'www/css/app.css': 'src/scss/app.scss'
+            }
+        }
 
+    }
 });
 
 grunt.loadNpmTasks('grunt-contrib-watch');

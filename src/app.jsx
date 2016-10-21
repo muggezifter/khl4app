@@ -1,5 +1,4 @@
 (function () {
-
     /**
      * Holds recording start time
      */
@@ -247,7 +246,9 @@
                     </div>
                     <StatusIndicator params={{label: "rec", id: "rec_indicator"}} />
                 {/*<StatusIndicator params={{label: "send", id: "send_indicator"}} />*/}
-                    <SettingsToggleButton toggleHandler={ this.props.toggleSettings }/>
+                    <div>
+                        <SettingsToggleButton toggleHandler={ this.props.toggleSettings }/>
+                    </div>
                 </div>
             );
         }
@@ -397,7 +398,7 @@
         render: function () {
             //console.log("InfoControl render", this.props.data)
             return (
-                <div id="info" className="control">
+                <div id="info" className="control dark">
                     <div id="rec_id">id: {this.props.data.info.rec_id}</div>
                     <div id="number">{this.props.data.info.number}</div>
                     <div id="time">{this.props.data.info.time}</div>

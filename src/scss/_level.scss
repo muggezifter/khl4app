@@ -1,0 +1,25 @@
+&#level .bar {
+    font-size: 0.5rem;
+        .outer {
+        float: right;
+        width: 85%;
+        height: 0.6em;
+        border: 0.1em solid $fg-color;
+        margin-top: 0.25em;
+    }
+    .bar .inner {
+        width: 40%;
+        height: 100%;
+        background-color: $indicator-color;
+    }
+    &:first-child {
+    margin-top: -0.2em;
+    }
+    &:last-child {
+        margin-bottom: -0.2em;
+    }
+}
+
+
+
+
