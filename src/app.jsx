@@ -218,10 +218,9 @@
             this.setState(state);
         },
         changeGrid: function(grid_id) {
-        alert(grid_id);
             localStorage.setItem("grid_id", grid_id);
             state.grid.id = grid_id;
-            this.setState(state)
+            this.setState(state);
         },
         render: function () {
             return (
