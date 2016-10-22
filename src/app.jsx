@@ -11,8 +11,6 @@
         tickLength: 500
     }
 
-
-
     /**
      * Root object for the app
      */
@@ -50,6 +48,7 @@
             if (this.toggleRec()) {
                 // initialize recording
                 this.initRec(()=> {
+                    this.updatePos();
                     // start the clock
                     this.state.clockIntervalID = setInterval(() => {
                         if (++this.state.tick > settings.ticksPerUpdate) {
@@ -175,39 +174,40 @@
          * Translate the received data (the chord) into class names for the grid control
          * @param data
          */
-        getGridClassName : data => ["control"].concat(
+        getGridClassName : function (data ) { return ["control"].concat(
             data
                 .filter(v => v.hasOwnProperty("note"))
                 .map(v => "midi" + v.note)
-        ),
+        )},
         /**
          * Update the levels data in state object
          * @param data
          */
-        getLevels : function(data) { return data.filter(v => v.hasOwnProperty("note"))
+        getLevels : function (data) { return data.filter(v => v.hasOwnProperty("note"))
             .map(v =>({"label": this.m2n(v.note), "level": 100 / 127 * v.velocity})
         )},
         /**
          * Reset the levels data in state object
          */
-        getZeroLevels : () => ([
+        getZeroLevels : function () { return [
             {label: "--", level: "0"},
             {label: "--", level: "0"},
             {label: "--", level: "0"}
-        ]),
+        ]},
         /**
          * Get the elapsed time since beginning the recordimg
          */
-        getUpdatedTime : startTime => new Date((new Date() - startTime) - 3600000)
+        getUpdatedTime : function (startTime) { return new Date((new Date() - startTime) - 3600000)
             .toTimeString()
-            .replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1"),
+            .replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1")
+        },
         /**
          * Midi note number to human readable note name
          *
          * @param m
          * @returns {string}
          */
-        m2n : m => ['c', 'c \u266F', 'd', 'd \u266F', 'e', 'f', 'f \u266F', 'g', 'g \u266F', 'a', 'a \u266F', 'b'][m % 12],
+        m2n : function (m ) { return ['c', 'c \u266F', 'd', 'd \u266F', 'e', 'f', 'f \u266F', 'g', 'g \u266F', 'a', 'a \u266F', 'b'][m % 12]},
         /**
          * Render the componente
          */
@@ -227,8 +227,8 @@
     /**
      * Status component: has start toggle and status indicators
      */
-    var StatusControl = React.createClass({
-        render: function () {
+    class StatusControl extends React.Component {
+        render () {
             return (
                 <div id="status" className={ this.props.data.status.classname.join(" ") }>
                     <div>
@@ -242,13 +242,13 @@
                 </div>
             );
         }
-    });
+    }
 
     /**
      * Status indicator: takes 2 params: label and id
      */
-    var StatusIndicator = React.createClass({
-        render: function () {
+    class StatusIndicator extends React.Component {
+        render () {
             return (
                 <div id= { this.props.params.id } className="indicator">
                     <svg viewBox="0 0 10 10">
@@ -258,13 +258,13 @@
                 </div>
             );
         }
-    });
+    }
 
     /**
      * Button for toggling the visibility of the settings area
      */
-    var SettingsToggleButton = React.createClass({
-        render: function () {
+    class SettingsToggleButton extends React.Component {
+        render () {
             return (
                 <button id="toggle_settings"  onClick={ this.props.toggleHandler }>
                     <svg viewBox="0 0 25 25" >
@@ -276,15 +276,10 @@
                 </button>
             );
         }
-    });
+    }
 
-
-
-    /**
-     * Grid component, visual feedback
-     */
-    var SettingsControl = React.createClass({
-        render: function () {
+    class SettingsControl extends React.Component {
+        render () {
             return (
                 <div id="settings" className={ this.props.data.settings.classname.join(" ") }>
                    <UrlInputControl data={ this.props.data } changeUrlHandler={ this.props.changeUrlHandler } />
@@ -292,29 +287,29 @@
                 </div>
             );
         }
-    });
+    }
 
-    var UrlInputControl = React.createClass({
-        render: function () {
+    class UrlInputControl extends React.Component {
+        render () {
             return (
                 <input type="text" id="server_url" value={ this.props.data.url }  onChange={ this.props.changeUrlHandler } />
             );
         }
-    });
+    }
 
-    var GridInputControl = React.createClass({
-        render: function () {
+    class GridInputControl extends React.Component {
+        render () {
             return (
                 <input type="text" id="grid_id" value={ this.props.data.grid.id }  onChange={ this.props.changeGridHandler } />
             );
         }
-    });
+    }
 
     /**
      * Grid component, visual feedback
      */
-    var GridControl = React.createClass({
-        render: function () {
+    class GridControl extends  React.Component {
+        render () {
             return (
                 <div id="grid" className={ this.props.data.grid.classname.join(" ") }>
                     <svg viewBox="0 0 264 128">
@@ -339,10 +334,10 @@
                 </div>
             );
         }
-    });
+    }
 
-    var LevelControl = React.createClass({
-        render: function () {
+    class LevelControl extends  React.Component {
+        render () {
             return (
                 <div id="level" className="control level">
                     <LevelBar params={{
@@ -360,10 +355,10 @@
                 </div>
             );
         }
-    });
+    }
 
-    var LevelBar = React.createClass({
-        render: function () {
+    class LevelBar extends  React.Component {
+        render () {
             return (
                 <div className="bar">
                     <span className="label">{ this.props.params.label }</span>
@@ -373,13 +368,13 @@
                 </div>
             )
         }
-    });
+    }
 
     /**
      * Info component, textual feedback
      */
-    var InfoControl = React.createClass({
-        render: function () {
+    class InfoControl extends  React.Component {
+        render () {
             //console.log("InfoControl render", this.props.data)
             return (
                 <div id="info" className="control dark">
@@ -389,7 +384,7 @@
                 </div>
             );
         }
-    });
+    }
 
     ReactDOM.render(
         <KhlApp />,
