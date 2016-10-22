@@ -8,35 +8,9 @@
      * ticks: How many ticks between requests. 1 tick is ~ 500ms
      */
     var settings = {
-        //url: "http://localhost:8080",
+        url: "https://khl4.ngrok.io",
         ticksPerUpdate: 20,
         tickLength: 500
-    };
-
-    /**
-     * Object that holds state for the various components
-     */
-    var initial_state = {
-        info: {
-            rec_id: "[not recording]",
-            number: "0000",
-            time: "00:00:00"
-        },
-        grid: {
-            classname: ["control"],
-            id: localStorage.getItem("grid_id") || "G0001"
-        },
-        status: {
-            classname: ["control"]
-        },
-        settings: {
-            classname: ["control"]
-        },
-        levels: [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }],
-        url: localStorage.getItem("url") || "https://khl4.ngrok.io",
-        clockIntervalID: 0,
-        recStartTime: null,
-        tick: 0
     };
 
     /**
@@ -46,7 +20,28 @@
         displayName: "KhlApp",
 
         getInitialState: function getInitialState() {
-            return { data: initial_state };
+            return {
+                info: {
+                    rec_id: "[not recording]",
+                    number: "0000",
+                    time: "00:00:00"
+                },
+                grid: {
+                    classname: ["control"],
+                    id: localStorage.getItem("grid_id") || "G0001"
+                },
+                status: {
+                    classname: ["control"]
+                },
+                settings: {
+                    classname: ["control"]
+                },
+                levels: [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }],
+                url: localStorage.getItem("url") || settings.url,
+                clockIntervalID: 0,
+                recStartTime: null,
+                tick: 0
+            };
         },
         /**
          * Stop and start the clock
@@ -58,18 +53,18 @@
                 // initialize recording
                 this.initRec(function () {
                     // start the clock
-                    _this.state.data.clockIntervalID = setInterval(function () {
-                        if (++_this.state.data.tick > settings.ticksPerUpdate) {
+                    _this.state.clockIntervalID = setInterval(function () {
+                        if (++_this.state.tick > settings.ticksPerUpdate) {
                             _this.updatePos();
-                            _this.state.data.tick = 0;
+                            _this.state.tick = 0;
                         }
-                        _this.state.data.info.time = _this.getUpdatedTime(_this.state.data.recStartTime);
+                        _this.state.info.time = _this.getUpdatedTime(_this.state.recStartTime);
                         _this.setState(_this.state);
                     }, settings.tickLength);
                 });
             } else {
                 // stop the clock
-                clearInterval(this.state.data.clockIntervalID);
+                clearInterval(this.state.clockIntervalID);
                 this.endRec(function () {
                     _this.setState(_this.state);
                 });
@@ -80,12 +75,11 @@
          * Show/hide the settings control
          */
         toggleSettings: function toggleSettings() {
-            if (this.state.data.settings.classname.indexOf("open") < 0) {
-                this.state.data.settings.classname.push("open");
+            if (this.state.settings.classname.indexOf("open") < 0) {
+                this.state.settings.classname.push("open");
             } else {
-                this.state.data.settings.classname = ["control"];
+                this.state.settings.classname = ["control"];
             }
-            console.log(state.settings.classname);
             this.setState(this.state);
         },
         /**
@@ -93,19 +87,19 @@
          * @returns {boolean}
          */
         toggleRec: function toggleRec() {
-            if (this.state.data.recStartTime === null) {
+            if (this.state.recStartTime === null) {
                 // start recording
-                this.state.data.status.classname.push("recording");
-                this.state.data.recStartTime = new Date();
+                this.state.status.classname.push("recording");
+                this.state.recStartTime = new Date();
             } else {
                 // stop recording
-                this.state.data.status.classname = this.state.data.status.classname.filter(function (v) {
+                this.state.status.classname = this.state.status.classname.filter(function (v) {
                     return v !== "recording";
                 });
-                this.state.data.levels = this.getZeroLevels();
-                this.state.data.recStartTime = null;
+                this.state.levels = this.getZeroLevels();
+                this.state.recStartTime = null;
             }
-            return this.state.data.recStartTime !== null;
+            return this.state.recStartTime !== null;
         },
         /**
          * Store url from settings
@@ -113,7 +107,7 @@
         changeUrlHandler: function changeUrlHandler(event) {
             var url = event.target.value;
             localStorage.setItem("url", url);
-            this.state.data.url = url;
+            this.state.url = url;
             this.setState(this.state);
         },
         /**
@@ -122,7 +116,7 @@
         changeGridHandler: function changeGridHandler(event) {
             var grid_id = event.target.value;
             localStorage.setItem("grid_id", grid_id);
-            this.state.data.grid.id = grid_id;
+            this.state.grid.id = grid_id;
             this.setState(this.state);
         },
         /**
@@ -131,8 +125,8 @@
         initRec: function initRec(callback) {
             var _this2 = this;
 
-            jQuery.getJSON(this.state.data.url + "/recording/start?grid=" + this.state.data.grid.id + "&callback=?").done(function (data) {
-                _this2.state.data.info.rec_id = data.recording_id;
+            jQuery.getJSON(this.state.url + "/recording/start?grid=" + this.state.grid.id + "&callback=?").done(function (data) {
+                _this2.state.info.rec_id = data.recording_id;
                 callback();
             });
         },
@@ -142,10 +136,9 @@
         endRec: function endRec(callback) {
             var _this3 = this;
 
-            jQuery.getJSON(this.state.data.url + "/recording/stop?rec_id=" + this.state.data.info.rec_id + "&callback=?").done(function (data) {
-                console.log(data);
-                _this3.state.data.grid.classname = ["control"];
-                _this3.state.data.info.rec_id = "[not recording]";
+            jQuery.getJSON(this.state.url + "/recording/stop?rec_id=" + this.state.info.rec_id + "&callback=?").done(function (data) {
+                _this3.state.grid.classname = ["control"];
+                _this3.state.info.rec_id = "[not recording]";
                 callback();
             });
         },
@@ -155,15 +148,15 @@
         updatePos: function updatePos() {
             var _this4 = this;
 
-            var number = "0000" + (parseInt(this.state.data.info.number) + 1);
+            var number = "0000" + (parseInt(this.state.info.number) + 1);
             number = number.substr(number.length - 4);
 
             navigator.geolocation.getCurrentPosition(function (pos) {
                 var lon = pos.coords.longitude;
                 var lat = pos.coords.latitude;
-                jQuery.getJSON([_this4.state.data.url, "/recording/node?nr=", _this4.state.data.info.number, "&rec_id=", _this4.state.data.info.rec_id, "&grid_id=", _this4.state.data.grid.id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
-                    _this4.state.data.grid.classname = _this4.getGridClassName(data);
-                    _this4.state.data.levels = _this4.getLevels(data);
+                jQuery.getJSON([_this4.state.url, "/recording/node?nr=", _this4.state.info.number, "&rec_id=", _this4.state.info.rec_id, "&grid_id=", _this4.state.grid.id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
+                    _this4.state.grid.classname = _this4.getGridClassName(data);
+                    _this4.state.levels = _this4.getLevels(data);
                 });
             }, function (err) {
                 console.warn('ERROR(' + err.code + '): ' + err.message);
@@ -172,8 +165,7 @@
                 timeout: 5000,
                 maximumAge: 0
             });
-
-            this.state.data.info.number = number;
+            this.state.info.number = number;
         },
         /**
          * Translate the received data (the chord) into class names for the grid control
@@ -227,11 +219,11 @@
             return React.createElement(
                 "div",
                 { className: "khlApp" },
-                React.createElement(StatusControl, { data: this.state.data, toggleHandler: this.toggleClock, toggleSettings: this.toggleSettings }),
-                React.createElement(SettingsControl, { data: this.state.data, changeUrlHandler: this.changeUrlHandler, changeGridHandler: this.changeGridHandler }),
-                React.createElement(GridControl, { data: this.state.data }),
-                React.createElement(LevelControl, { data: this.state.data }),
-                React.createElement(InfoControl, { data: this.state.data })
+                React.createElement(StatusControl, { data: this.state, toggleHandler: this.toggleClock, toggleSettings: this.toggleSettings }),
+                React.createElement(SettingsControl, { data: this.state, changeUrlHandler: this.changeUrlHandler, changeGridHandler: this.changeGridHandler }),
+                React.createElement(GridControl, { data: this.state }),
+                React.createElement(LevelControl, { data: this.state }),
+                React.createElement(InfoControl, { data: this.state })
             );
         }
     });

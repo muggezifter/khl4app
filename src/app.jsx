@@ -6,47 +6,43 @@
      * ticks: How many ticks between requests. 1 tick is ~ 500ms
      */
     var settings = {
-        //url: "http://localhost:8080",
+        url: "https://khl4.ngrok.io",
         ticksPerUpdate: 20,
         tickLength: 500
     }
 
-    /**
-     * Object that holds state for the various components
-     */
-    var initial_state = {
-        info: {
-            rec_id: "[not recording]",
-            number: "0000",
-            time: "00:00:00"
-        },
-        grid: {
-            classname: ["control"],
-            id: localStorage.getItem("grid_id") || "G0001"
-        },
-        status: {
-            classname: ["control"]
-        },
-        settings: {
-            classname: ["control"]
-        },
-        levels: [
-            {label: "--", level: "0"},
-            {label: "--", level: "0"},
-            {label: "--", level: "0"}
-        ],
-        url: localStorage.getItem("url") || "https://khl4.ngrok.io",
-        clockIntervalID: 0,
-        recStartTime: null,
-        tick: 0
-    }
 
 
     /**
      * Root object for the app
      */
     var KhlApp = React.createClass({
-        getInitialState: () => ({data: initial_state}),
+        getInitialState: () => ({
+            info: {
+                rec_id: "[not recording]",
+                number: "0000",
+                time: "00:00:00"
+            },
+            grid: {
+                classname: ["control"],
+                id: localStorage.getItem("grid_id") || "G0001"
+            },
+            status: {
+                classname: ["control"]
+            },
+            settings: {
+                classname: ["control"]
+            },
+            levels: [
+                {label: "--", level: "0"},
+                {label: "--", level: "0"},
+                {label: "--", level: "0"}
+            ],
+            url: localStorage.getItem("url") || settings.url,
+            clockIntervalID: 0,
+            recStartTime: null,
+            tick: 0
+        }),
         /**
          * Stop and start the clock
          */
@@ -55,18 +51,18 @@
                 // initialize recording
                 this.initRec(()=> {
                     // start the clock
-                    this.state.data.clockIntervalID = setInterval(() => {
-                        if (++this.state.data.tick > settings.ticksPerUpdate) {
+                    this.state.clockIntervalID = setInterval(() => {
+                        if (++this.state.tick > settings.ticksPerUpdate) {
                             this.updatePos();
-                            this.state.data.tick = 0;
+                            this.state.tick = 0;
                         }
-                        this.state.data.info.time = this.getUpdatedTime(this.state.data.recStartTime);
+                        this.state.info.time = this.getUpdatedTime(this.state.recStartTime);
                         this.setState(this.state);
                     }, settings.tickLength)
                 });
             } else {
                 // stop the clock
-                clearInterval(this.state.data.clockIntervalID);
+                clearInterval(this.state.clockIntervalID);
                 this.endRec(() => {
                     this.setState(this.state);
                 });
@@ -77,12 +73,11 @@
          * Show/hide the settings control
          */
         toggleSettings: function () {
-            if (this.state.data.settings.classname.indexOf("open") < 0) {
-                this.state.data.settings.classname.push("open");
+            if (this.state.settings.classname.indexOf("open") < 0) {
+                this.state.settings.classname.push("open");
             } else {
-                this.state.data.settings.classname = ["control"]
+                this.state.settings.classname = ["control"]
             }
-            console.log(state.settings.classname);
             this.setState(this.state);
         },
         /**
@@ -90,19 +85,19 @@
          * @returns {boolean}
          */
         toggleRec: function () {
-            if (this.state.data.recStartTime === null) {
+            if (this.state.recStartTime === null) {
                 // start recording
-                this.state.data.status.classname.push("recording");
-                this.state.data.recStartTime = new Date();
+                this.state.status.classname.push("recording");
+                this.state.recStartTime = new Date();
             } else {
                 // stop recording
-                this.state.data.status.classname = this.state.data.status.classname.filter(function (v) {
+                this.state.status.classname = this.state.status.classname.filter(function (v) {
                     return (v !== "recording")
                 });
-                this.state.data.levels = this.getZeroLevels();
-                this.state.data.recStartTime = null;
+                this.state.levels = this.getZeroLevels();
+                this.state.recStartTime = null;
             }
-            return (this.state.data.recStartTime !== null);
+            return (this.state.recStartTime !== null);
         },
         /**
          * Store url from settings
@@ -110,7 +105,7 @@
         changeUrlHandler: function (event) {
             var url = event.target.value;
             localStorage.setItem("url", url);
-            this.state.data.url = url;
+            this.state.url = url;
             this.setState(this.state);
         },
         /**
@@ -119,16 +114,16 @@
         changeGridHandler: function (event) {
             var grid_id = event.target.value;
             localStorage.setItem("grid_id", grid_id);
-            this.state.data.grid.id = grid_id;
+            this.state.grid.id = grid_id;
             this.setState(this.state);
         },
         /**
          * Start a recording
          */
         initRec : function (callback) {
-            jQuery.getJSON(this.state.data.url + "/recording/start?grid=" + this.state.data.grid.id + "&callback=?")
+            jQuery.getJSON(this.state.url + "/recording/start?grid=" + this.state.grid.id + "&callback=?")
                 .done(data => {
-                    this.state.data.info.rec_id = data.recording_id;
+                    this.state.info.rec_id = data.recording_id;
                     callback();
             });
         },
@@ -136,11 +131,10 @@
          * End recording
          */
         endRec : function (callback) {
-            jQuery.getJSON(this.state.data.url + "/recording/stop?rec_id=" + this.state.data.info.rec_id + "&callback=?")
+            jQuery.getJSON(this.state.url + "/recording/stop?rec_id=" + this.state.info.rec_id + "&callback=?")
                 .done(data => {
-                    console.log(data);
-                    this.state.data.grid.classname = ["control"];
-                    this.state.data.info.rec_id = "[not recording]";
+                    this.state.grid.classname = ["control"];
+                    this.state.info.rec_id = "[not recording]";
                     callback();
                 });
         },
@@ -148,7 +142,7 @@
          * Send current position to the server, receive back the calculated chord
          */
         updatePos : function () {
-            var number = "0000" + ( parseInt(this.state.data.info.number) + 1);
+            var number = "0000" + ( parseInt(this.state.info.number) + 1);
             number = number.substr(number.length - 4);
 
             navigator.geolocation.getCurrentPosition(
@@ -156,17 +150,17 @@
                     var lon = pos.coords.longitude;
                     var lat = pos.coords.latitude;
                     jQuery.getJSON([
-                        this.state.data.url,
-                        "/recording/node?nr=", this.state.data.info.number,
-                        "&rec_id=", this.state.data.info.rec_id,
-                        "&grid_id=", this.state.data.grid.id,
+                        this.state.url,
+                        "/recording/node?nr=", this.state.info.number,
+                        "&rec_id=", this.state.info.rec_id,
+                        "&grid_id=", this.state.grid.id,
                         "&lat=", lat,
                         "&lon=", lon,
                         "&callback=?"
                     ].join(""))
                         .done(data => {
-                            this.state.data.grid.classname = this.getGridClassName(data);
-                            this.state.data.levels = this.getLevels(data);
+                            this.state.grid.classname = this.getGridClassName(data);
+                            this.state.levels = this.getLevels(data);
                         })
                 }, function (err) {
                     console.warn('ERROR(' + err.code + '): ' + err.message);
@@ -175,9 +169,7 @@
                     timeout: 5000,
                     maximumAge: 0
                 });
-
-
-            this.state.data.info.number = number;
+            this.state.info.number = number;
         },
         /**
          * Translate the received data (the chord) into class names for the grid control
@@ -222,11 +214,11 @@
         render: function () {
             return (
                 <div className="khlApp">
-                    <StatusControl data={ this.state.data } toggleHandler = { this.toggleClock } toggleSettings = { this.toggleSettings } />
-                    <SettingsControl data={ this.state.data } changeUrlHandler = { this.changeUrlHandler } changeGridHandler = { this.changeGridHandler } />
-                    <GridControl data={ this.state.data } />
-                    <LevelControl data = { this.state.data} />
-                    <InfoControl data={ this.state.data } />
+                    <StatusControl data={ this.state } toggleHandler = { this.toggleClock } toggleSettings = { this.toggleSettings } />
+                    <SettingsControl data={ this.state } changeUrlHandler = { this.changeUrlHandler } changeGridHandler = { this.changeGridHandler } />
+                    <GridControl data={ this.state } />
+                    <LevelControl data = { this.state} />
+                    <InfoControl data={ this.state } />
                 </div>
             );
         }
@@ -403,7 +395,6 @@
         <KhlApp />,
         document.getElementById('container')
     );
-
 
 }());
 
