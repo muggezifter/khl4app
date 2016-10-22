@@ -1,8 +1,4 @@
 (function () {
-    /**
-     * Holds recording start time
-     */
-    var recStartTime = null;
 
     /**
      * Settings for the app:
@@ -18,7 +14,7 @@
     /**
      * Object that holds state for the various components
      */
-    var state = {
+    var initial_state = {
         info: {
             rec_id: "[not recording]",
             number: "0000",
@@ -41,136 +37,8 @@
         ],
         url: localStorage.getItem("url") || "https://khl4.ngrok.io",
         clockIntervalID: 0,
+        recStartTime: null,
         tick: 0
-    }
-
-    /**
-     * Midi note number to human readable note name
-     *
-     * @param m
-     * @returns {string}
-     */
-    var m2n = m => ['c', 'c \u266F', 'd', 'd \u266F', 'e', 'f', 'f \u266F', 'g', 'g \u266F', 'a', 'a \u266F', 'b'][m % 12];
-
-    /**
-     * Initialize recording: on the server a new record is made in the db. Set the recording id.
-     *
-     * @returns {khl}
-     */
-    var initRec = callback => {
-        jQuery.getJSON(state.url + "/recording/start?grid=" + state.grid.id + "&callback=?")
-            .done(data => {
-                state.info.rec_id = data.recording_id;
-                callback();
-            });
-    }
-
-    /**
-     * Stop and start recording
-     * @returns {boolean}
-     */
-    var toggleRec = () => {
-        if (recStartTime === null) {
-            // start recording
-            state.status.classname.push("recording");
-            recStartTime = new Date();
-        } else {
-            // stop recording
-            state.status.classname = state.status.classname.filter(function (v) {
-                return (v !== "recording")
-            });
-            state.levels = getZeroLevels();
-            recStartTime = null;
-        }
-        return (recStartTime !== null);
-    }
-
-
-    /**
-     * End recording
-     */
-    var endRec = callback => {
-        jQuery.getJSON(state.url + "/recording/stop?rec_id=" + state.info.rec_id + "&callback=?")
-            .done(data => {
-                console.log(data);
-                state.grid.classname = ["control"];
-                state.info.rec_id = "[not recording]";
-                callback();
-            });
-    }
-
-    /**
-     * Translate the received data (the chord) into class names for the grid control
-     * @param data
-     */
-    var getGridClassName = data => ["control"]
-        .concat(
-        data
-            .filter(v => v.hasOwnProperty("note"))
-            .map(v => "midi" + v.note)
-    );
-
-
-    /**
-     * Update the levels data in state object
-     * @param data
-     */
-    var getLevels = data => data.filter(v => v.hasOwnProperty("note"))
-        .map(v =>({"label": m2n(v.note), "level": 100 / 127 * v.velocity})
-    );
-
-
-    /**
-     * Reset the levels data in state object
-     */
-    var getZeroLevels = () => ([
-        {label: "--", level: "0"},
-        {label: "--", level: "0"},
-        {label: "--", level: "0"}
-    ]);
-
-    /**
-     * Get the elapsed time since beginning the recordimg
-     */
-    var getUpdatedTime = () => new Date((new Date() - recStartTime) - 3600000)
-        .toTimeString()
-        .replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-
-    /**
-     * Send current position to the server, receive back the calculated chord
-     */
-    var updatePos = function () {
-        var number = "0000" + ( parseInt(state.info.number) + 1);
-        number = number.substr(number.length - 4);
-
-        navigator.geolocation.getCurrentPosition(
-            function (pos) {
-                var lon = pos.coords.longitude;
-                var lat = pos.coords.latitude;
-                jQuery.getJSON([
-                    state.url,
-                    "/recording/node?nr=", state.info.number,
-                    "&rec_id=", state.info.rec_id,
-                    "&grid_id=", state.grid.id,
-                    "&lat=", lat,
-                    "&lon=", lon,
-                    "&callback=?"
-                ].join(""))
-                    .done(function (data) {
-                        state.grid.classname = getGridClassName(data);
-                        state.levels = getLevels(data);
-                        console.log(state.levels)
-                        console.log(data);
-                    })
-            }, function (err) {
-                console.warn('ERROR(' + err.code + '): ' + err.message);
-            }, {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
-            });
-
-        state.info.number = number;
     }
 
 
@@ -178,52 +46,178 @@
      * Root object for the app
      */
     var KhlApp = React.createClass({
-        getInitialState: () => ({data: state}),
-        // toggle handler to be passed to the status control
+        getInitialState: () => ({data: initial_state}),
+        /**
+         * Stop and start the clock
+         */
         toggleClock: function () {
-            if (toggleRec()) {
+            if (this.toggleRec()) {
                 // initialize recording
-                initRec(()=> {
+                this.initRec(()=> {
                     // start the clock
-                    this.state.clockIntervalID = setInterval(() => {
+                    this.state.data.clockIntervalID = setInterval(() => {
                         if (++this.state.data.tick > settings.ticksPerUpdate) {
-                            updatePos();
+                            this.updatePos();
                             this.state.data.tick = 0;
                         }
-                        this.state.data.info.time = getUpdatedTime();
+                        this.state.data.info.time = this.getUpdatedTime(this.state.data.recStartTime);
                         this.setState(this.state);
                     }, settings.tickLength)
                 });
             } else {
                 // stop the clock
-                clearInterval(this.state.clockIntervalID);
-                endRec(() => {
+                clearInterval(this.state.data.clockIntervalID);
+                this.endRec(() => {
                     this.setState(this.state);
                 });
             }
             this.setState(this.state);
         },
+        /**
+         * Show/hide the settings control
+         */
         toggleSettings: function () {
-            if (state.settings.classname.indexOf("open") < 0) {
-                state.settings.classname.push("open");
+            if (this.state.data.settings.classname.indexOf("open") < 0) {
+                this.state.data.settings.classname.push("open");
             } else {
-                state.settings.classname = ["control"]
+                this.state.data.settings.classname = ["control"]
             }
             console.log(state.settings.classname);
             this.setState(this.state);
         },
+        /**
+         * Stop and start recording
+         * @returns {boolean}
+         */
+        toggleRec: function () {
+            if (this.state.data.recStartTime === null) {
+                // start recording
+                this.state.data.status.classname.push("recording");
+                this.state.data.recStartTime = new Date();
+            } else {
+                // stop recording
+                this.state.data.status.classname = this.state.data.status.classname.filter(function (v) {
+                    return (v !== "recording")
+                });
+                this.state.data.levels = this.getZeroLevels();
+                this.state.data.recStartTime = null;
+            }
+            return (this.state.data.recStartTime !== null);
+        },
+        /**
+         * Store url from settings
+         */
         changeUrlHandler: function (event) {
             var url = event.target.value;
             localStorage.setItem("url", url);
-            state.url = url;
+            this.state.data.url = url;
             this.setState(this.state);
         },
+        /**
+         * Store grid name from settings
+         */
         changeGridHandler: function (event) {
             var grid_id = event.target.value;
             localStorage.setItem("grid_id", grid_id);
-            state.grid.id = grid_id;
+            this.state.data.grid.id = grid_id;
             this.setState(this.state);
         },
+        /**
+         * Start a recording
+         */
+        initRec : function (callback) {
+            jQuery.getJSON(this.state.data.url + "/recording/start?grid=" + this.state.data.grid.id + "&callback=?")
+                .done(data => {
+                    this.state.data.info.rec_id = data.recording_id;
+                    callback();
+            });
+        },
+        /**
+         * End recording
+         */
+        endRec : function (callback) {
+            jQuery.getJSON(this.state.data.url + "/recording/stop?rec_id=" + this.state.data.info.rec_id + "&callback=?")
+                .done(data => {
+                    console.log(data);
+                    this.state.data.grid.classname = ["control"];
+                    this.state.data.info.rec_id = "[not recording]";
+                    callback();
+                });
+        },
+        /**
+         * Send current position to the server, receive back the calculated chord
+         */
+        updatePos : function () {
+            var number = "0000" + ( parseInt(this.state.data.info.number) + 1);
+            number = number.substr(number.length - 4);
+
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    var lon = pos.coords.longitude;
+                    var lat = pos.coords.latitude;
+                    jQuery.getJSON([
+                        this.state.data.url,
+                        "/recording/node?nr=", this.state.data.info.number,
+                        "&rec_id=", this.state.data.info.rec_id,
+                        "&grid_id=", this.state.data.grid.id,
+                        "&lat=", lat,
+                        "&lon=", lon,
+                        "&callback=?"
+                    ].join(""))
+                        .done(data => {
+                            this.state.data.grid.classname = this.getGridClassName(data);
+                            this.state.data.levels = this.getLevels(data);
+                        })
+                }, function (err) {
+                    console.warn('ERROR(' + err.code + '): ' + err.message);
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                });
+
+            state.info.number = number;
+        },
+        /**
+         * Translate the received data (the chord) into class names for the grid control
+         * @param data
+         */
+        getGridClassName : data => ["control"].concat(
+            data
+                .filter(v => v.hasOwnProperty("note"))
+                .map(v => "midi" + v.note)
+        ),
+        /**
+         * Update the levels data in state object
+         * @param data
+         */
+        getLevels : function(data) { return data.filter(v => v.hasOwnProperty("note"))
+            .map(v =>({"label": this.m2n(v.note), "level": 100 / 127 * v.velocity})
+        )},
+        /**
+         * Reset the levels data in state object
+         */
+        getZeroLevels : () => ([
+            {label: "--", level: "0"},
+            {label: "--", level: "0"},
+            {label: "--", level: "0"}
+        ]),
+        /**
+         * Get the elapsed time since beginning the recordimg
+         */
+        getUpdatedTime : startTime => new Date((new Date() - startTime) - 3600000)
+            .toTimeString()
+            .replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1"),
+        /**
+         * Midi note number to human readable note name
+         *
+         * @param m
+         * @returns {string}
+         */
+        m2n : m => ['c', 'c \u266F', 'd', 'd \u266F', 'e', 'f', 'f \u266F', 'g', 'g \u266F', 'a', 'a \u266F', 'b'][m % 12],
+        /**
+         * Render the componente
+         */
         render: function () {
             return (
                 <div className="khlApp">
