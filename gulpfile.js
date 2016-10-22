@@ -1,14 +1,9 @@
 var gulp = require('gulp');
-var babel = require('gulp-babel');
 var sass = require('gulp-sass');
+var browserify = require('browserify');
+var babelify = require('babelify');
+var source = require('vinyl-source-stream')
 
-gulp.task("jsx", function(){
-    return gulp.src("src/*.jsx")
-        .pipe(babel({
-            presets: ["es2015","react"]
-        }))
-        .pipe(gulp.dest("www/js"));
-});
 
 gulp.task('sass', function () {
     return gulp.src('src/scss/*.scss')
@@ -17,7 +12,22 @@ gulp.task('sass', function () {
 });
 
 gulp.task('watch',function() {
-    gulp.watch('src/*.jsx',['jsx']);
+    gulp.watch('src/*.jsx',['bundle']);
     gulp.watch('src/scss/*.scss',['sass']);
 });
 
+
+gulp.task('bundle', function() {
+    return browserify({
+        extensions: ['.jsx','js'],
+        entries: 'src/app.jsx',
+    })
+    .transform(babelify.configure({
+        presets: ["es2015","react"]
+        ,ignore: /(bower_components)|(node_modules)/
+    }))
+    .bundle()
+    .on("error", function (err) { console.log("Error : " + err.message); })
+    .pipe(source('bundle.js'))
+    .pipe(gulp.dest('www/js'));
+});
