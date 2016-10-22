@@ -39,7 +39,9 @@
             {label: "--", level: "0"},
             {label: "--", level: "0"}
         ],
-        url: localStorage.getItem("url") || "https://khl4.ngrok.io"
+        url: localStorage.getItem("url") || "https://khl4.ngrok.io",
+        clockIntervalID: 0,
+        tick: 0
     }
 
     /**
@@ -157,6 +159,7 @@
                     .done(function (data) {
                         state.grid.classname = getGridClassName(data);
                         state.levels = getLevels(data);
+                        console.log(state.levels)
                         console.log(data);
                     })
             }, function (err) {
@@ -175,8 +178,6 @@
      * Root object for the app
      */
     var KhlApp = React.createClass({
-        clockIntervalID: 0,
-        tick: 0,
         getInitialState: () => ({data: state}),
         // toggle handler to be passed to the status control
         toggleClock: function () {
@@ -184,23 +185,23 @@
                 // initialize recording
                 initRec(()=> {
                     // start the clock
-                    this.clockIntervalID = setInterval(() => {
-                        if (++this.tick > settings.ticksPerUpdate) {
+                    this.state.clockIntervalID = setInterval(() => {
+                        if (++this.state.data.tick > settings.ticksPerUpdate) {
                             updatePos();
-                            this.tick = 0;
+                            this.state.data.tick = 0;
                         }
-                        state.info.time = getUpdatedTime();
-                        this.setState(state);
+                        this.state.data.info.time = getUpdatedTime();
+                        this.setState(this.state);
                     }, settings.tickLength)
                 });
             } else {
                 // stop the clock
-                clearInterval(this.clockIntervalID);
+                clearInterval(this.state.clockIntervalID);
                 endRec(() => {
-                    this.setState(state)
+                    this.setState(this.state);
                 });
             }
-            this.setState(state);
+            this.setState(this.state);
         },
         toggleSettings: function () {
             if (state.settings.classname.indexOf("open") < 0) {
@@ -209,23 +210,25 @@
                 state.settings.classname = ["control"]
             }
             console.log(state.settings.classname);
-            this.setState(state);
+            this.setState(this.state);
         },
-        changeUrl: function (url) {
+        changeUrlHandler: function (event) {
+            var url = event.target.value;
             localStorage.setItem("url", url);
             state.url = url;
-            this.setState(state);
+            this.setState(this.state);
         },
-        changeGrid: function(grid_id) {
+        changeGridHandler: function (event) {
+            var grid_id = event.target.value;
             localStorage.setItem("grid_id", grid_id);
             state.grid.id = grid_id;
-            this.setState(state);
+            this.setState(this.state);
         },
         render: function () {
             return (
                 <div className="khlApp">
                     <StatusControl data={ this.state.data } toggleHandler = { this.toggleClock } toggleSettings = { this.toggleSettings } />
-                    <SettingsControl data={ this.state.data } changeUrlHandler = { this.changeUrl } changeGridHandler = { this.changeGrid } />
+                    <SettingsControl data={ this.state.data } changeUrlHandler = { this.changeUrlHandler } changeGridHandler = { this.changeGridHandler } />
                     <GridControl data={ this.state.data } />
                     <LevelControl data = { this.state.data} />
                     <InfoControl data={ this.state.data } />
@@ -305,23 +308,17 @@
     });
 
     var UrlInputControl = React.createClass({
-        handleChange: function(event) {
-            this.props.changeUrlHandler(event.target.value);
-        },
         render: function () {
             return (
-                <input type="text" id="server_url" value={ this.props.data.url }  onChange={this.handleChange} />
+                <input type="text" id="server_url" value={ this.props.data.url }  onChange={ this.props.changeUrlHandler } />
             );
         }
     });
 
     var GridInputControl = React.createClass({
-        handleChange: function(event) {
-            this.props.changeGridHandler(event.target.value);
-        },
         render: function () {
             return (
-                <input type="text" id="grid_id" value={ this.props.data.grid.id }  onChange={this.handleChange} />
+                <input type="text" id="grid_id" value={ this.props.data.grid.id }  onChange={ this.props.changeGridHandler } />
             );
         }
     });
@@ -406,7 +403,6 @@
             );
         }
     });
-
 
     ReactDOM.render(
         <KhlApp />,

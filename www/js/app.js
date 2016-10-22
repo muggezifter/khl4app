@@ -37,7 +37,9 @@
             classname: ["control"]
         },
         levels: [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }],
-        url: localStorage.getItem("url") || "https://khl4.ngrok.io"
+        url: localStorage.getItem("url") || "https://khl4.ngrok.io",
+        clockIntervalID: 0,
+        tick: 0
     };
 
     /**
@@ -145,6 +147,7 @@
             jQuery.getJSON([state.url, "/recording/node?nr=", state.info.number, "&rec_id=", state.info.rec_id, "&grid_id=", state.grid.id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
                 state.grid.classname = getGridClassName(data);
                 state.levels = getLevels(data);
+                console.log(state.levels);
                 console.log(data);
             });
         }, function (err) {
@@ -164,8 +167,6 @@
     var KhlApp = React.createClass({
         displayName: "KhlApp",
 
-        clockIntervalID: 0,
-        tick: 0,
         getInitialState: function getInitialState() {
             return { data: state };
         },
@@ -177,23 +178,23 @@
                 // initialize recording
                 initRec(function () {
                     // start the clock
-                    _this.clockIntervalID = setInterval(function () {
-                        if (++_this.tick > settings.ticksPerUpdate) {
+                    _this.state.clockIntervalID = setInterval(function () {
+                        if (++_this.state.data.tick > settings.ticksPerUpdate) {
                             updatePos();
-                            _this.tick = 0;
+                            _this.state.data.tick = 0;
                         }
-                        state.info.time = getUpdatedTime();
-                        _this.setState(state);
+                        _this.state.data.info.time = getUpdatedTime();
+                        _this.setState(_this.state);
                     }, settings.tickLength);
                 });
             } else {
                 // stop the clock
-                clearInterval(this.clockIntervalID);
+                clearInterval(this.state.clockIntervalID);
                 endRec(function () {
-                    _this.setState(state);
+                    _this.setState(_this.state);
                 });
             }
-            this.setState(state);
+            this.setState(this.state);
         },
         toggleSettings: function toggleSettings() {
             if (state.settings.classname.indexOf("open") < 0) {
@@ -202,24 +203,26 @@
                 state.settings.classname = ["control"];
             }
             console.log(state.settings.classname);
-            this.setState(state);
+            this.setState(this.state);
         },
-        changeUrl: function changeUrl(url) {
+        changeUrlHandler: function changeUrlHandler(event) {
+            var url = event.target.value;
             localStorage.setItem("url", url);
             state.url = url;
-            this.setState(state);
+            this.setState(this.state);
         },
-        changeGrid: function changeGrid(grid_id) {
+        changeGridHandler: function changeGridHandler(event) {
+            var grid_id = event.target.value;
             localStorage.setItem("grid_id", grid_id);
             state.grid.id = grid_id;
-            this.setState(state);
+            this.setState(this.state);
         },
         render: function render() {
             return React.createElement(
                 "div",
                 { className: "khlApp" },
                 React.createElement(StatusControl, { data: this.state.data, toggleHandler: this.toggleClock, toggleSettings: this.toggleSettings }),
-                React.createElement(SettingsControl, { data: this.state.data, changeUrlHandler: this.changeUrl, changeGridHandler: this.changeGrid }),
+                React.createElement(SettingsControl, { data: this.state.data, changeUrlHandler: this.changeUrlHandler, changeGridHandler: this.changeGridHandler }),
                 React.createElement(GridControl, { data: this.state.data }),
                 React.createElement(LevelControl, { data: this.state.data }),
                 React.createElement(InfoControl, { data: this.state.data })
@@ -314,22 +317,16 @@
     var UrlInputControl = React.createClass({
         displayName: "UrlInputControl",
 
-        handleChange: function handleChange(event) {
-            this.props.changeUrlHandler(event.target.value);
-        },
         render: function render() {
-            return React.createElement("input", { type: "text", id: "server_url", value: this.props.data.url, onChange: this.handleChange });
+            return React.createElement("input", { type: "text", id: "server_url", value: this.props.data.url, onChange: this.props.changeUrlHandler });
         }
     });
 
     var GridInputControl = React.createClass({
         displayName: "GridInputControl",
 
-        handleChange: function handleChange(event) {
-            this.props.changeGridHandler(event.target.value);
-        },
         render: function render() {
-            return React.createElement("input", { type: "text", id: "grid_id", value: this.props.data.grid.id, onChange: this.handleChange });
+            return React.createElement("input", { type: "text", id: "grid_id", value: this.props.data.grid.id, onChange: this.props.changeGridHandler });
         }
     });
 
