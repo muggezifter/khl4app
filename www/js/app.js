@@ -1,6 +1,6 @@
 "use strict";
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -9,7 +9,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 (function () {
-
     /**
      * Settings for the app:
      * url: the url of the khl4server
@@ -25,13 +24,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
      * Root object for the app
      */
 
-    var KhlApp = (function (_React$Component) {
+    var KhlApp = function (_React$Component) {
         _inherits(KhlApp, _React$Component);
 
         function KhlApp(props) {
             _classCallCheck(this, KhlApp);
 
-            var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(KhlApp).call(this, props));
+            var _this = _possibleConstructorReturn(this, (KhlApp.__proto__ || Object.getPrototypeOf(KhlApp)).call(this, props));
 
             _this.state = {
                 info: {
@@ -60,6 +59,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         /**
          * Stop and start the clock
          */
+
 
         _createClass(KhlApp, [{
             key: "toggleClock",
@@ -264,7 +264,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }, {
             key: "m2n",
             value: function m2n(m) {
-                return ['c', "c ♯", 'd', "d ♯", 'e', 'f', "f ♯", 'g', "g ♯", 'a', "a ♯", 'b'][m % 12];
+                return ['c', "c \u266F", 'd', "d \u266F", 'e', 'f', "f \u266F", 'g', "g \u266F", 'a', "a \u266F", 'b'][m % 12];
             }
             /**
              * Render the componente
@@ -286,19 +286,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return KhlApp;
-    })(React.Component);
+    }(React.Component);
 
     /**
      * Status component: has start toggle and status indicators
      */
 
-    var StatusControl = (function (_React$Component2) {
+
+    var StatusControl = function (_React$Component2) {
         _inherits(StatusControl, _React$Component2);
 
         function StatusControl() {
             _classCallCheck(this, StatusControl);
 
-            return _possibleConstructorReturn(this, Object.getPrototypeOf(StatusControl).apply(this, arguments));
+            return _possibleConstructorReturn(this, (StatusControl.__proto__ || Object.getPrototypeOf(StatusControl)).apply(this, arguments));
         }
 
         _createClass(StatusControl, [{
@@ -323,19 +324,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return StatusControl;
-    })(React.Component);
+    }(React.Component);
 
     /**
      * Status indicator: takes 2 params: label and id
      */
 
-    var StatusIndicator = (function (_React$Component3) {
+
+    var StatusIndicator = function (_React$Component3) {
         _inherits(StatusIndicator, _React$Component3);
 
         function StatusIndicator() {
             _classCallCheck(this, StatusIndicator);
 
-            return _possibleConstructorReturn(this, Object.getPrototypeOf(StatusIndicator).apply(this, arguments));
+            return _possibleConstructorReturn(this, (StatusIndicator.__proto__ || Object.getPrototypeOf(StatusIndicator)).apply(this, arguments));
         }
 
         _createClass(StatusIndicator, [{
@@ -359,19 +361,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return StatusIndicator;
-    })(React.Component);
+    }(React.Component);
 
     /**
      * Button for toggling the visibility of the settings area
      */
 
-    var SettingsToggleButton = (function (_React$Component4) {
+
+    var SettingsToggleButton = function (_React$Component4) {
         _inherits(SettingsToggleButton, _React$Component4);
 
         function SettingsToggleButton() {
             _classCallCheck(this, SettingsToggleButton);
 
-            return _possibleConstructorReturn(this, Object.getPrototypeOf(SettingsToggleButton).apply(this, arguments));
+            return _possibleConstructorReturn(this, (SettingsToggleButton.__proto__ || Object.getPrototypeOf(SettingsToggleButton)).apply(this, arguments));
         }
 
         _createClass(SettingsToggleButton, [{
@@ -390,15 +393,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return SettingsToggleButton;
-    })(React.Component);
+    }(React.Component);
 
-    var SettingsControl = (function (_React$Component5) {
+    var SettingsControl = function (_React$Component5) {
         _inherits(SettingsControl, _React$Component5);
 
         function SettingsControl() {
             _classCallCheck(this, SettingsControl);
 
-            return _possibleConstructorReturn(this, Object.getPrototypeOf(SettingsControl).apply(this, arguments));
+            return _possibleConstructorReturn(this, (SettingsControl.__proto__ || Object.getPrototypeOf(SettingsControl)).apply(this, arguments));
         }
 
         _createClass(SettingsControl, [{
@@ -414,15 +417,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return SettingsControl;
-    })(React.Component);
+    }(React.Component);
 
-    var UrlInputControl = (function (_React$Component6) {
+    var UrlInputControl = function (_React$Component6) {
         _inherits(UrlInputControl, _React$Component6);
 
         function UrlInputControl() {
             _classCallCheck(this, UrlInputControl);
 
-            return _possibleConstructorReturn(this, Object.getPrototypeOf(UrlInputControl).apply(this, arguments));
+            return _possibleConstructorReturn(this, (UrlInputControl.__proto__ || Object.getPrototypeOf(UrlInputControl)).apply(this, arguments));
         }
 
         _createClass(UrlInputControl, [{
@@ -433,15 +436,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return UrlInputControl;
-    })(React.Component);
+    }(React.Component);
 
-    var GridInputControl = (function (_React$Component7) {
+    var GridInputControl = function (_React$Component7) {
         _inherits(GridInputControl, _React$Component7);
 
         function GridInputControl() {
             _classCallCheck(this, GridInputControl);
 
-            return _possibleConstructorReturn(this, Object.getPrototypeOf(GridInputControl).apply(this, arguments));
+            return _possibleConstructorReturn(this, (GridInputControl.__proto__ || Object.getPrototypeOf(GridInputControl)).apply(this, arguments));
         }
 
         _createClass(GridInputControl, [{
@@ -452,19 +455,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return GridInputControl;
-    })(React.Component);
+    }(React.Component);
 
     /**
      * Grid component, visual feedback
      */
 
-    var GridControl = (function (_React$Component8) {
+
+    var GridControl = function (_React$Component8) {
         _inherits(GridControl, _React$Component8);
 
         function GridControl() {
             _classCallCheck(this, GridControl);
 
-            return _possibleConstructorReturn(this, Object.getPrototypeOf(GridControl).apply(this, arguments));
+            return _possibleConstructorReturn(this, (GridControl.__proto__ || Object.getPrototypeOf(GridControl)).apply(this, arguments));
         }
 
         _createClass(GridControl, [{
@@ -495,15 +499,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return GridControl;
-    })(React.Component);
+    }(React.Component);
 
-    var LevelControl = (function (_React$Component9) {
+    var LevelControl = function (_React$Component9) {
         _inherits(LevelControl, _React$Component9);
 
         function LevelControl() {
             _classCallCheck(this, LevelControl);
 
-            return _possibleConstructorReturn(this, Object.getPrototypeOf(LevelControl).apply(this, arguments));
+            return _possibleConstructorReturn(this, (LevelControl.__proto__ || Object.getPrototypeOf(LevelControl)).apply(this, arguments));
         }
 
         _createClass(LevelControl, [{
@@ -529,15 +533,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return LevelControl;
-    })(React.Component);
+    }(React.Component);
 
-    var LevelBar = (function (_React$Component10) {
+    var LevelBar = function (_React$Component10) {
         _inherits(LevelBar, _React$Component10);
 
         function LevelBar() {
             _classCallCheck(this, LevelBar);
 
-            return _possibleConstructorReturn(this, Object.getPrototypeOf(LevelBar).apply(this, arguments));
+            return _possibleConstructorReturn(this, (LevelBar.__proto__ || Object.getPrototypeOf(LevelBar)).apply(this, arguments));
         }
 
         _createClass(LevelBar, [{
@@ -561,19 +565,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return LevelBar;
-    })(React.Component);
+    }(React.Component);
 
     /**
      * Info component, textual feedback
      */
 
-    var InfoControl = (function (_React$Component11) {
+
+    var InfoControl = function (_React$Component11) {
         _inherits(InfoControl, _React$Component11);
 
         function InfoControl() {
             _classCallCheck(this, InfoControl);
 
-            return _possibleConstructorReturn(this, Object.getPrototypeOf(InfoControl).apply(this, arguments));
+            return _possibleConstructorReturn(this, (InfoControl.__proto__ || Object.getPrototypeOf(InfoControl)).apply(this, arguments));
         }
 
         _createClass(InfoControl, [{
@@ -603,8 +608,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return InfoControl;
-    })(React.Component);
+    }(React.Component);
 
     ReactDOM.render(React.createElement(KhlApp, null), document.getElementById('container'));
 })();
-//# sourceMappingURL=app.js.map

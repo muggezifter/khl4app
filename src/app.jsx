@@ -1,6 +1,5 @@
 
 (function () {
-
     /**
      * Settings for the app:
      * url: the url of the khl4server
