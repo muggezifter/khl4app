@@ -176,7 +176,8 @@
                     maximumAge: 0
                 });
 
-            state.info.number = number;
+
+            this.state.data.info.number = number;
         },
         /**
          * Translate the received data (the chord) into class names for the grid control
