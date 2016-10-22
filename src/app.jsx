@@ -1,3 +1,4 @@
+
 (function () {
 
     /**
@@ -14,37 +15,40 @@
     /**
      * Root object for the app
      */
-    var KhlApp = React.createClass({
-        getInitialState: () => ({
-            info: {
-                rec_id: "[not recording]",
-                number: "0000",
-                time: "00:00:00"
-            },
-            grid: {
-                classname: ["control"],
-                id: localStorage.getItem("grid_id") || "G0001"
-            },
-            status: {
-                classname: ["control"]
-            },
-            settings: {
-                classname: ["control"]
-            },
-            levels: [
-                {label: "--", level: "0"},
-                {label: "--", level: "0"},
-                {label: "--", level: "0"}
-            ],
-            url: localStorage.getItem("url") || settings.url,
-            clockIntervalID: 0,
-            recStartTime: null,
-            tick: 0
-        }),
+    class KhlApp extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                info: {
+                    rec_id: "[not recording]",
+                    number: "0000",
+                    time: "00:00:00"
+                },
+                grid: {
+                    classname: ["control"],
+                    id: localStorage.getItem("grid_id") || "G0001"
+                },
+                status: {
+                    classname: ["control"]
+                },
+                settings: {
+                    classname: ["control"]
+                },
+                levels: [
+                    {label: "--", level: "0"},
+                    {label: "--", level: "0"},
+                    {label: "--", level: "0"}
+                ],
+                url: localStorage.getItem("url") || settings.url,
+                clockIntervalID: 0,
+                recStartTime: null,
+                tick: 0
+            };
+        }
         /**
          * Stop and start the clock
          */
-        toggleClock: function () {
+        toggleClock() {
             if (this.toggleRec()) {
                 // initialize recording
                 this.initRec(()=> {
@@ -67,23 +71,23 @@
                 });
             }
             this.setState(this.state);
-        },
+        }
         /**
          * Show/hide the settings control
          */
-        toggleSettings: function () {
+        toggleSettings() {
             if (this.state.settings.classname.indexOf("open") < 0) {
                 this.state.settings.classname.push("open");
             } else {
                 this.state.settings.classname = ["control"]
             }
             this.setState(this.state);
-        },
+        }
         /**
          * Stop and start recording
          * @returns {boolean}
          */
-        toggleRec: function () {
+        toggleRec() {
             if (this.state.recStartTime === null) {
                 // start recording
                 this.state.status.classname.push("recording");
@@ -97,50 +101,50 @@
                 this.state.recStartTime = null;
             }
             return (this.state.recStartTime !== null);
-        },
+        }
         /**
          * Store url from settings
          */
-        changeUrlHandler: function (event) {
+        changeUrlHandler(event) {
             var url = event.target.value;
             localStorage.setItem("url", url);
             this.state.url = url;
             this.setState(this.state);
-        },
+        }
         /**
          * Store grid name from settings
          */
-        changeGridHandler: function (event) {
+        changeGridHandler(event) {
             var grid_id = event.target.value;
             localStorage.setItem("grid_id", grid_id);
             this.state.grid.id = grid_id;
             this.setState(this.state);
-        },
+        }
         /**
          * Start a recording
          */
-        initRec : function (callback) {
+        initRec(callback) {
             jQuery.getJSON(this.state.url + "/recording/start?grid=" + this.state.grid.id + "&callback=?")
                 .done(data => {
                     this.state.info.rec_id = data.recording_id;
                     callback();
             });
-        },
+        }
         /**
          * End recording
          */
-        endRec : function (callback) {
+        endRec(callback) {
             jQuery.getJSON(this.state.url + "/recording/stop?rec_id=" + this.state.info.rec_id + "&callback=?")
                 .done(data => {
                     this.state.grid.classname = ["control"];
                     this.state.info.rec_id = "[not recording]";
                     callback();
                 });
-        },
+        }
         /**
          * Send current position to the server, receive back the calculated chord
          */
-        updatePos : function () {
+        updatePos() {
             var number = "0000" + ( parseInt(this.state.info.number) + 1);
             number = number.substr(number.length - 4);
 
@@ -169,66 +173,72 @@
                     maximumAge: 0
                 });
             this.state.info.number = number;
-        },
+        }
         /**
          * Translate the received data (the chord) into class names for the grid control
          * @param data
          */
-        getGridClassName : function (data ) { return ["control"].concat(
-            data
-                .filter(v => v.hasOwnProperty("note"))
-                .map(v => "midi" + v.note)
-        )},
+        getGridClassName(data) { 
+            return ["control"].concat(
+                data.filter(v => v.hasOwnProperty("note"))
+                    .map(v => "midi" + v.note))
+        }
         /**
          * Update the levels data in state object
          * @param data
          */
-        getLevels : function (data) { return data.filter(v => v.hasOwnProperty("note"))
-            .map(v =>({"label": this.m2n(v.note), "level": 100 / 127 * v.velocity})
-        )},
+        getLevels(data) { 
+            return data.filter(v => v.hasOwnProperty("note"))
+                .map(v =>({"label": this.m2n(v.note), "level": 100 / 127 * v.velocity}))
+        }
         /**
          * Reset the levels data in state object
          */
-        getZeroLevels : function () { return [
-            {label: "--", level: "0"},
-            {label: "--", level: "0"},
-            {label: "--", level: "0"}
-        ]},
+        getZeroLevels() { 
+            return [
+                {label: "--", level: "0"},
+                {label: "--", level: "0"},
+                {label: "--", level: "0"}]
+        }
         /**
          * Get the elapsed time since beginning the recordimg
          */
-        getUpdatedTime : function (startTime) { return new Date((new Date() - startTime) - 3600000)
-            .toTimeString()
-            .replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1")
-        },
+        getUpdatedTime(startTime) { 
+            return new Date((new Date() - startTime) - 3600000)
+                .toTimeString()
+                .replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1")
+        }
         /**
          * Midi note number to human readable note name
          *
          * @param m
          * @returns {string}
          */
-        m2n : function (m ) { return ['c', 'c \u266F', 'd', 'd \u266F', 'e', 'f', 'f \u266F', 'g', 'g \u266F', 'a', 'a \u266F', 'b'][m % 12]},
+        m2n(m) {
+            return ['c', 'c \u266F', 'd', 'd \u266F', 'e', 'f', 'f \u266F', 
+            'g', 'g \u266F', 'a', 'a \u266F', 'b'][m % 12] 
+        }
         /**
          * Render the componente
          */
-        render: function () {
+        render() {
             return (
                 <div className="khlApp">
-                    <StatusControl data={ this.state } toggleHandler = { this.toggleClock } toggleSettings = { this.toggleSettings } />
-                    <SettingsControl data={ this.state } changeUrlHandler = { this.changeUrlHandler } changeGridHandler = { this.changeGridHandler } />
+                    <StatusControl data={ this.state } toggleHandler = { this.toggleClock.bind(this) } toggleSettings = { this.toggleSettings.bind(this) } />
+                    <SettingsControl data={ this.state } changeUrlHandler = { this.changeUrlHandler.bind(this) } changeGridHandler = { this.changeGridHandler.bind(this) } />
                     <GridControl data={ this.state } />
                     <LevelControl data = { this.state} />
                     <InfoControl data={ this.state } />
                 </div>
             );
         }
-    });
+    }
 
     /**
      * Status component: has start toggle and status indicators
      */
     class StatusControl extends React.Component {
-        render () {
+        render() {
             return (
                 <div id="status" className={ this.props.data.status.classname.join(" ") }>
                     <div>
@@ -248,7 +258,7 @@
      * Status indicator: takes 2 params: label and id
      */
     class StatusIndicator extends React.Component {
-        render () {
+        render() {
             return (
                 <div id= { this.props.params.id } className="indicator">
                     <svg viewBox="0 0 10 10">
@@ -264,7 +274,7 @@
      * Button for toggling the visibility of the settings area
      */
     class SettingsToggleButton extends React.Component {
-        render () {
+        render() {
             return (
                 <button id="toggle_settings"  onClick={ this.props.toggleHandler }>
                     <svg viewBox="0 0 25 25" >
@@ -279,7 +289,7 @@
     }
 
     class SettingsControl extends React.Component {
-        render () {
+        render() {
             return (
                 <div id="settings" className={ this.props.data.settings.classname.join(" ") }>
                    <UrlInputControl data={ this.props.data } changeUrlHandler={ this.props.changeUrlHandler } />
@@ -290,7 +300,7 @@
     }
 
     class UrlInputControl extends React.Component {
-        render () {
+        render() {
             return (
                 <input type="text" id="server_url" value={ this.props.data.url }  onChange={ this.props.changeUrlHandler } />
             );
@@ -298,7 +308,7 @@
     }
 
     class GridInputControl extends React.Component {
-        render () {
+        render() {
             return (
                 <input type="text" id="grid_id" value={ this.props.data.grid.id }  onChange={ this.props.changeGridHandler } />
             );
@@ -309,7 +319,7 @@
      * Grid component, visual feedback
      */
     class GridControl extends  React.Component {
-        render () {
+        render() {
             return (
                 <div id="grid" className={ this.props.data.grid.classname.join(" ") }>
                     <svg viewBox="0 0 264 128">
@@ -337,7 +347,7 @@
     }
 
     class LevelControl extends  React.Component {
-        render () {
+        render() {
             return (
                 <div id="level" className="control level">
                     <LevelBar params={{
@@ -358,7 +368,7 @@
     }
 
     class LevelBar extends  React.Component {
-        render () {
+        render() {
             return (
                 <div className="bar">
                     <span className="label">{ this.props.params.label }</span>
@@ -374,8 +384,7 @@
      * Info component, textual feedback
      */
     class InfoControl extends  React.Component {
-        render () {
-            //console.log("InfoControl render", this.props.data)
+        render() {
             return (
                 <div id="info" className="control dark">
                     <div id="rec_id">id: {this.props.data.info.rec_id}</div>

@@ -24,11 +24,16 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
     /**
      * Root object for the app
      */
-    var KhlApp = React.createClass({
-        displayName: "KhlApp",
 
-        getInitialState: function getInitialState() {
-            return {
+    var KhlApp = (function (_React$Component) {
+        _inherits(KhlApp, _React$Component);
+
+        function KhlApp(props) {
+            _classCallCheck(this, KhlApp);
+
+            var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(KhlApp).call(this, props));
+
+            _this.state = {
                 info: {
                     rec_id: "[not recording]",
                     number: "0000",
@@ -50,199 +55,245 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 recStartTime: null,
                 tick: 0
             };
-        },
+            return _this;
+        }
         /**
          * Stop and start the clock
          */
-        toggleClock: function toggleClock() {
-            var _this = this;
 
-            if (this.toggleRec()) {
-                // initialize recording
-                this.initRec(function () {
-                    _this.updatePos();
-                    // start the clock
-                    _this.state.clockIntervalID = setInterval(function () {
-                        if (++_this.state.tick > settings.ticksPerUpdate) {
-                            _this.updatePos();
-                            _this.state.tick = 0;
-                        }
-                        _this.state.info.time = _this.getUpdatedTime(_this.state.recStartTime);
-                        _this.setState(_this.state);
-                    }, settings.tickLength);
-                });
-            } else {
-                // stop the clock
-                clearInterval(this.state.clockIntervalID);
-                this.endRec(function () {
-                    _this.setState(_this.state);
+        _createClass(KhlApp, [{
+            key: "toggleClock",
+            value: function toggleClock() {
+                var _this2 = this;
+
+                if (this.toggleRec()) {
+                    // initialize recording
+                    this.initRec(function () {
+                        _this2.updatePos();
+                        // start the clock
+                        _this2.state.clockIntervalID = setInterval(function () {
+                            if (++_this2.state.tick > settings.ticksPerUpdate) {
+                                _this2.updatePos();
+                                _this2.state.tick = 0;
+                            }
+                            _this2.state.info.time = _this2.getUpdatedTime(_this2.state.recStartTime);
+                            _this2.setState(_this2.state);
+                        }, settings.tickLength);
+                    });
+                } else {
+                    // stop the clock
+                    clearInterval(this.state.clockIntervalID);
+                    this.endRec(function () {
+                        _this2.setState(_this2.state);
+                    });
+                }
+                this.setState(this.state);
+            }
+            /**
+             * Show/hide the settings control
+             */
+
+        }, {
+            key: "toggleSettings",
+            value: function toggleSettings() {
+                if (this.state.settings.classname.indexOf("open") < 0) {
+                    this.state.settings.classname.push("open");
+                } else {
+                    this.state.settings.classname = ["control"];
+                }
+                this.setState(this.state);
+            }
+            /**
+             * Stop and start recording
+             * @returns {boolean}
+             */
+
+        }, {
+            key: "toggleRec",
+            value: function toggleRec() {
+                if (this.state.recStartTime === null) {
+                    // start recording
+                    this.state.status.classname.push("recording");
+                    this.state.recStartTime = new Date();
+                } else {
+                    // stop recording
+                    this.state.status.classname = this.state.status.classname.filter(function (v) {
+                        return v !== "recording";
+                    });
+                    this.state.levels = this.getZeroLevels();
+                    this.state.recStartTime = null;
+                }
+                return this.state.recStartTime !== null;
+            }
+            /**
+             * Store url from settings
+             */
+
+        }, {
+            key: "changeUrlHandler",
+            value: function changeUrlHandler(event) {
+                var url = event.target.value;
+                localStorage.setItem("url", url);
+                this.state.url = url;
+                this.setState(this.state);
+            }
+            /**
+             * Store grid name from settings
+             */
+
+        }, {
+            key: "changeGridHandler",
+            value: function changeGridHandler(event) {
+                var grid_id = event.target.value;
+                localStorage.setItem("grid_id", grid_id);
+                this.state.grid.id = grid_id;
+                this.setState(this.state);
+            }
+            /**
+             * Start a recording
+             */
+
+        }, {
+            key: "initRec",
+            value: function initRec(callback) {
+                var _this3 = this;
+
+                jQuery.getJSON(this.state.url + "/recording/start?grid=" + this.state.grid.id + "&callback=?").done(function (data) {
+                    _this3.state.info.rec_id = data.recording_id;
+                    callback();
                 });
             }
-            this.setState(this.state);
-        },
-        /**
-         * Show/hide the settings control
-         */
-        toggleSettings: function toggleSettings() {
-            if (this.state.settings.classname.indexOf("open") < 0) {
-                this.state.settings.classname.push("open");
-            } else {
-                this.state.settings.classname = ["control"];
-            }
-            this.setState(this.state);
-        },
-        /**
-         * Stop and start recording
-         * @returns {boolean}
-         */
-        toggleRec: function toggleRec() {
-            if (this.state.recStartTime === null) {
-                // start recording
-                this.state.status.classname.push("recording");
-                this.state.recStartTime = new Date();
-            } else {
-                // stop recording
-                this.state.status.classname = this.state.status.classname.filter(function (v) {
-                    return v !== "recording";
+            /**
+             * End recording
+             */
+
+        }, {
+            key: "endRec",
+            value: function endRec(callback) {
+                var _this4 = this;
+
+                jQuery.getJSON(this.state.url + "/recording/stop?rec_id=" + this.state.info.rec_id + "&callback=?").done(function (data) {
+                    _this4.state.grid.classname = ["control"];
+                    _this4.state.info.rec_id = "[not recording]";
+                    callback();
                 });
-                this.state.levels = this.getZeroLevels();
-                this.state.recStartTime = null;
             }
-            return this.state.recStartTime !== null;
-        },
-        /**
-         * Store url from settings
-         */
-        changeUrlHandler: function changeUrlHandler(event) {
-            var url = event.target.value;
-            localStorage.setItem("url", url);
-            this.state.url = url;
-            this.setState(this.state);
-        },
-        /**
-         * Store grid name from settings
-         */
-        changeGridHandler: function changeGridHandler(event) {
-            var grid_id = event.target.value;
-            localStorage.setItem("grid_id", grid_id);
-            this.state.grid.id = grid_id;
-            this.setState(this.state);
-        },
-        /**
-         * Start a recording
-         */
-        initRec: function initRec(callback) {
-            var _this2 = this;
+            /**
+             * Send current position to the server, receive back the calculated chord
+             */
 
-            jQuery.getJSON(this.state.url + "/recording/start?grid=" + this.state.grid.id + "&callback=?").done(function (data) {
-                _this2.state.info.rec_id = data.recording_id;
-                callback();
-            });
-        },
-        /**
-         * End recording
-         */
-        endRec: function endRec(callback) {
-            var _this3 = this;
+        }, {
+            key: "updatePos",
+            value: function updatePos() {
+                var _this5 = this;
 
-            jQuery.getJSON(this.state.url + "/recording/stop?rec_id=" + this.state.info.rec_id + "&callback=?").done(function (data) {
-                _this3.state.grid.classname = ["control"];
-                _this3.state.info.rec_id = "[not recording]";
-                callback();
-            });
-        },
-        /**
-         * Send current position to the server, receive back the calculated chord
-         */
-        updatePos: function updatePos() {
-            var _this4 = this;
+                var number = "0000" + (parseInt(this.state.info.number) + 1);
+                number = number.substr(number.length - 4);
 
-            var number = "0000" + (parseInt(this.state.info.number) + 1);
-            number = number.substr(number.length - 4);
-
-            navigator.geolocation.getCurrentPosition(function (pos) {
-                var lon = pos.coords.longitude;
-                var lat = pos.coords.latitude;
-                jQuery.getJSON([_this4.state.url, "/recording/node?nr=", _this4.state.info.number, "&rec_id=", _this4.state.info.rec_id, "&grid_id=", _this4.state.grid.id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
-                    _this4.state.grid.classname = _this4.getGridClassName(data);
-                    _this4.state.levels = _this4.getLevels(data);
+                navigator.geolocation.getCurrentPosition(function (pos) {
+                    var lon = pos.coords.longitude;
+                    var lat = pos.coords.latitude;
+                    jQuery.getJSON([_this5.state.url, "/recording/node?nr=", _this5.state.info.number, "&rec_id=", _this5.state.info.rec_id, "&grid_id=", _this5.state.grid.id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
+                        _this5.state.grid.classname = _this5.getGridClassName(data);
+                        _this5.state.levels = _this5.getLevels(data);
+                    });
+                }, function (err) {
+                    console.warn('ERROR(' + err.code + '): ' + err.message);
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
                 });
-            }, function (err) {
-                console.warn('ERROR(' + err.code + '): ' + err.message);
-            }, {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
-            });
-            this.state.info.number = number;
-        },
-        /**
-         * Translate the received data (the chord) into class names for the grid control
-         * @param data
-         */
-        getGridClassName: function getGridClassName(data) {
-            return ["control"].concat(data.filter(function (v) {
-                return v.hasOwnProperty("note");
-            }).map(function (v) {
-                return "midi" + v.note;
-            }));
-        },
-        /**
-         * Update the levels data in state object
-         * @param data
-         */
-        getLevels: function getLevels(data) {
-            var _this5 = this;
+                this.state.info.number = number;
+            }
+            /**
+             * Translate the received data (the chord) into class names for the grid control
+             * @param data
+             */
 
-            return data.filter(function (v) {
-                return v.hasOwnProperty("note");
-            }).map(function (v) {
-                return { "label": _this5.m2n(v.note), "level": 100 / 127 * v.velocity };
-            });
-        },
-        /**
-         * Reset the levels data in state object
-         */
-        getZeroLevels: function getZeroLevels() {
-            return [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }];
-        },
-        /**
-         * Get the elapsed time since beginning the recordimg
-         */
-        getUpdatedTime: function getUpdatedTime(startTime) {
-            return new Date(new Date() - startTime - 3600000).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-        },
-        /**
-         * Midi note number to human readable note name
-         *
-         * @param m
-         * @returns {string}
-         */
-        m2n: function m2n(m) {
-            return ['c', "c ♯", 'd', "d ♯", 'e', 'f', "f ♯", 'g', "g ♯", 'a', "a ♯", 'b'][m % 12];
-        },
-        /**
-         * Render the componente
-         */
-        render: function render() {
-            return React.createElement(
-                "div",
-                { className: "khlApp" },
-                React.createElement(StatusControl, { data: this.state, toggleHandler: this.toggleClock, toggleSettings: this.toggleSettings }),
-                React.createElement(SettingsControl, { data: this.state, changeUrlHandler: this.changeUrlHandler, changeGridHandler: this.changeGridHandler }),
-                React.createElement(GridControl, { data: this.state }),
-                React.createElement(LevelControl, { data: this.state }),
-                React.createElement(InfoControl, { data: this.state })
-            );
-        }
-    });
+        }, {
+            key: "getGridClassName",
+            value: function getGridClassName(data) {
+                return ["control"].concat(data.filter(function (v) {
+                    return v.hasOwnProperty("note");
+                }).map(function (v) {
+                    return "midi" + v.note;
+                }));
+            }
+            /**
+             * Update the levels data in state object
+             * @param data
+             */
+
+        }, {
+            key: "getLevels",
+            value: function getLevels(data) {
+                var _this6 = this;
+
+                return data.filter(function (v) {
+                    return v.hasOwnProperty("note");
+                }).map(function (v) {
+                    return { "label": _this6.m2n(v.note), "level": 100 / 127 * v.velocity };
+                });
+            }
+            /**
+             * Reset the levels data in state object
+             */
+
+        }, {
+            key: "getZeroLevels",
+            value: function getZeroLevels() {
+                return [{ label: "--", level: "0" }, { label: "--", level: "0" }, { label: "--", level: "0" }];
+            }
+            /**
+             * Get the elapsed time since beginning the recordimg
+             */
+
+        }, {
+            key: "getUpdatedTime",
+            value: function getUpdatedTime(startTime) {
+                return new Date(new Date() - startTime - 3600000).toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+            }
+            /**
+             * Midi note number to human readable note name
+             *
+             * @param m
+             * @returns {string}
+             */
+
+        }, {
+            key: "m2n",
+            value: function m2n(m) {
+                return ['c', "c ♯", 'd', "d ♯", 'e', 'f', "f ♯", 'g', "g ♯", 'a', "a ♯", 'b'][m % 12];
+            }
+            /**
+             * Render the componente
+             */
+
+        }, {
+            key: "render",
+            value: function render() {
+                return React.createElement(
+                    "div",
+                    { className: "khlApp" },
+                    React.createElement(StatusControl, { data: this.state, toggleHandler: this.toggleClock.bind(this), toggleSettings: this.toggleSettings.bind(this) }),
+                    React.createElement(SettingsControl, { data: this.state, changeUrlHandler: this.changeUrlHandler.bind(this), changeGridHandler: this.changeGridHandler.bind(this) }),
+                    React.createElement(GridControl, { data: this.state }),
+                    React.createElement(LevelControl, { data: this.state }),
+                    React.createElement(InfoControl, { data: this.state })
+                );
+            }
+        }]);
+
+        return KhlApp;
+    })(React.Component);
 
     /**
      * Status component: has start toggle and status indicators
      */
 
-    var StatusControl = (function (_React$Component) {
-        _inherits(StatusControl, _React$Component);
+    var StatusControl = (function (_React$Component2) {
+        _inherits(StatusControl, _React$Component2);
 
         function StatusControl() {
             _classCallCheck(this, StatusControl);
@@ -278,8 +329,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
      * Status indicator: takes 2 params: label and id
      */
 
-    var StatusIndicator = (function (_React$Component2) {
-        _inherits(StatusIndicator, _React$Component2);
+    var StatusIndicator = (function (_React$Component3) {
+        _inherits(StatusIndicator, _React$Component3);
 
         function StatusIndicator() {
             _classCallCheck(this, StatusIndicator);
@@ -314,8 +365,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
      * Button for toggling the visibility of the settings area
      */
 
-    var SettingsToggleButton = (function (_React$Component3) {
-        _inherits(SettingsToggleButton, _React$Component3);
+    var SettingsToggleButton = (function (_React$Component4) {
+        _inherits(SettingsToggleButton, _React$Component4);
 
         function SettingsToggleButton() {
             _classCallCheck(this, SettingsToggleButton);
@@ -341,8 +392,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         return SettingsToggleButton;
     })(React.Component);
 
-    var SettingsControl = (function (_React$Component4) {
-        _inherits(SettingsControl, _React$Component4);
+    var SettingsControl = (function (_React$Component5) {
+        _inherits(SettingsControl, _React$Component5);
 
         function SettingsControl() {
             _classCallCheck(this, SettingsControl);
@@ -365,8 +416,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         return SettingsControl;
     })(React.Component);
 
-    var UrlInputControl = (function (_React$Component5) {
-        _inherits(UrlInputControl, _React$Component5);
+    var UrlInputControl = (function (_React$Component6) {
+        _inherits(UrlInputControl, _React$Component6);
 
         function UrlInputControl() {
             _classCallCheck(this, UrlInputControl);
@@ -384,8 +435,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         return UrlInputControl;
     })(React.Component);
 
-    var GridInputControl = (function (_React$Component6) {
-        _inherits(GridInputControl, _React$Component6);
+    var GridInputControl = (function (_React$Component7) {
+        _inherits(GridInputControl, _React$Component7);
 
         function GridInputControl() {
             _classCallCheck(this, GridInputControl);
@@ -407,8 +458,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
      * Grid component, visual feedback
      */
 
-    var GridControl = (function (_React$Component7) {
-        _inherits(GridControl, _React$Component7);
+    var GridControl = (function (_React$Component8) {
+        _inherits(GridControl, _React$Component8);
 
         function GridControl() {
             _classCallCheck(this, GridControl);
@@ -446,8 +497,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         return GridControl;
     })(React.Component);
 
-    var LevelControl = (function (_React$Component8) {
-        _inherits(LevelControl, _React$Component8);
+    var LevelControl = (function (_React$Component9) {
+        _inherits(LevelControl, _React$Component9);
 
         function LevelControl() {
             _classCallCheck(this, LevelControl);
@@ -480,8 +531,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         return LevelControl;
     })(React.Component);
 
-    var LevelBar = (function (_React$Component9) {
-        _inherits(LevelBar, _React$Component9);
+    var LevelBar = (function (_React$Component10) {
+        _inherits(LevelBar, _React$Component10);
 
         function LevelBar() {
             _classCallCheck(this, LevelBar);
@@ -516,8 +567,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
      * Info component, textual feedback
      */
 
-    var InfoControl = (function (_React$Component10) {
-        _inherits(InfoControl, _React$Component10);
+    var InfoControl = (function (_React$Component11) {
+        _inherits(InfoControl, _React$Component11);
 
         function InfoControl() {
             _classCallCheck(this, InfoControl);
@@ -528,7 +579,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         _createClass(InfoControl, [{
             key: "render",
             value: function render() {
-                //console.log("InfoControl render", this.props.data)
                 return React.createElement(
                     "div",
                     { id: "info", className: "control dark" },
