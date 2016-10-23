@@ -3,9 +3,9 @@
     &.open {
        display: block;
     }
-    input {
+    input, select, option {
         width: 100%;
-        font-size: 0.7em;
-        margin-bottom: 0.5em;
+        font-size: 0.7rem;
+        margin-bottom: 0.5rem;
     }
 }

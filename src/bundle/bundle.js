@@ -21016,7 +21016,7 @@ var SettingsControl = function (_React$Component) {
                 "div",
                 { id: "settings", className: this.props.data.settings.classname.join(" ") },
                 _react2.default.createElement(UrlInputControl, { data: this.props.data, changeUrlHandler: this.props.changeUrlHandler }),
-                _react2.default.createElement(GridInputControl, { data: this.props.data, changeGridHandler: this.props.changeGridHandler })
+                _react2.default.createElement(GridSelectControl, { data: this.props.data, changeGridHandler: this.props.changeGridHandler })
             );
         }
     }]);
@@ -21045,23 +21045,60 @@ var UrlInputControl = function (_React$Component2) {
     return UrlInputControl;
 }(_react2.default.Component);
 
-var GridInputControl = function (_React$Component3) {
-    _inherits(GridInputControl, _React$Component3);
+var GridSelectControl = function (_React$Component3) {
+    _inherits(GridSelectControl, _React$Component3);
 
-    function GridInputControl() {
-        _classCallCheck(this, GridInputControl);
+    function GridSelectControl() {
+        _classCallCheck(this, GridSelectControl);
 
-        return _possibleConstructorReturn(this, (GridInputControl.__proto__ || Object.getPrototypeOf(GridInputControl)).apply(this, arguments));
+        return _possibleConstructorReturn(this, (GridSelectControl.__proto__ || Object.getPrototypeOf(GridSelectControl)).apply(this, arguments));
     }
 
-    _createClass(GridInputControl, [{
+    _createClass(GridSelectControl, [{
         key: "render",
         value: function render() {
-            return _react2.default.createElement("input", { type: "text", id: "grid_id", value: this.props.data.grid.id, onChange: this.props.changeGridHandler });
+            return _react2.default.createElement(
+                "select",
+                { id: "grid_id", value: this.props.data.grid.id, onChange: this.props.changeGridHandler },
+                _react2.default.createElement(
+                    "option",
+                    { value: "" },
+                    "choose a grid..."
+                ),
+                this.props.data.grids.map(function (grid, i) {
+                    return _react2.default.createElement(GridOptionControl, {
+                        key: i,
+                        value: grid.id,
+                        label: grid.label });
+                })
+            );
         }
     }]);
 
-    return GridInputControl;
+    return GridSelectControl;
+}(_react2.default.Component);
+
+var GridOptionControl = function (_React$Component4) {
+    _inherits(GridOptionControl, _React$Component4);
+
+    function GridOptionControl() {
+        _classCallCheck(this, GridOptionControl);
+
+        return _possibleConstructorReturn(this, (GridOptionControl.__proto__ || Object.getPrototypeOf(GridOptionControl)).apply(this, arguments));
+    }
+
+    _createClass(GridOptionControl, [{
+        key: "render",
+        value: function render() {
+            return _react2.default.createElement(
+                "option",
+                { value: this.props.value },
+                this.props.label
+            );
+        }
+    }]);
+
+    return GridOptionControl;
 }(_react2.default.Component);
 
 },{"react":171}],176:[function(require,module,exports){
@@ -21270,6 +21307,7 @@ var KhlApp = function (_React$Component) {
                 classname: ["control"],
                 id: localStorage.getItem("grid_id") || "G0001"
             },
+            grids: [{ id: "G0001", label: "Rotterdam" }, { id: "G0002", label: "Spangen" }],
             status: {
                 classname: ["control"]
             },

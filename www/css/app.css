@@ -96,9 +96,9 @@ body {
       display: none; }
       body .control#settings.open {
         display: block; }
-      body .control#settings input {
+      body .control#settings input, body .control#settings select, body .control#settings option {
         width: 100%;
-        font-size: 0.7em;
+        font-size: 0.7rem;
         margin-bottom: 0.5em; }
     body .control#grid svg {
       width: 100%;

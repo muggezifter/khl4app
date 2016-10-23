@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 /**
  * Show the levels of the chord
  */

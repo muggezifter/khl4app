@@ -35,6 +35,10 @@ class KhlApp extends React.Component {
                 classname: ["control"],
                 id: localStorage.getItem("grid_id") || "G0001"
             },
+            grids: [
+                { id: "G0001", label :"Rotterdam" },
+                { id: "G0002", label :"Spangen" }
+            ],
             status: {
                 classname: ["control"]
             },
