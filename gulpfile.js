@@ -2,8 +2,15 @@ var gulp = require('gulp');
 var sass = require('gulp-sass');
 var browserify = require('browserify');
 var babelify = require('babelify');
-var source = require('vinyl-source-stream')
+var source = require('vinyl-source-stream');
+var uglify = require('gulp-uglify');
+var pump = require('pump');
+var concat = require('gulp-concat');
 
+gulp.task('watch',function() {
+    gulp.watch('src/*.jsx',['jsx']);
+    gulp.watch('src/scss/*.scss',['sass']);
+});
 
 gulp.task('sass', function () {
     return gulp.src('src/scss/*.scss')
@@ -11,11 +18,8 @@ gulp.task('sass', function () {
         .pipe(gulp.dest('www/css'));
 });
 
-gulp.task('watch',function() {
-    gulp.watch('src/*.jsx',['bundle']);
-    gulp.watch('src/scss/*.scss',['sass']);
-});
 
+gulp.task('jsx',['bundle','compress-js']);
 
 gulp.task('bundle', function() {
     return browserify({
@@ -24,10 +28,21 @@ gulp.task('bundle', function() {
     })
     .transform(babelify.configure({
         presets: ["es2015","react"]
-        ,ignore: /(bower_components)|(node_modules)/
     }))
     .bundle()
     .on("error", function (err) { console.log("Error : " + err.message); })
     .pipe(source('bundle.js'))
-    .pipe(gulp.dest('www/js'));
+    .pipe(gulp.dest('src/bundle'));
+});
+
+
+gulp.task('compress-js', function (cb) {
+  pump([
+        gulp.src('src/bundle/bundle.js'),
+        uglify(),
+        concat('bundle.min.js'),
+        gulp.dest('www/js')
+    ],
+    cb
+  );
 });
