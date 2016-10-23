@@ -3,8 +3,10 @@ import GridControl from './_grid.jsx';
 import LevelControl from './_level.jsx';
 import SettingsControl from './_settings.jsx';
 import StatusControl from './_status.jsx';
+import jQuery from './jquery-ajax.min.js';
 import ReactDOM from 'react-dom';
 import React from 'react';
+
 
 /**
  * Settings for the app:
