@@ -5,7 +5,7 @@ import SettingsControl from './_settings.jsx';
 import StatusControl from './_status.jsx';
 import ReactDOM from 'react-dom';
 import React from 'react';
-/**
+
 /**
  * Settings for the app:
  * url: the url of the khl4server

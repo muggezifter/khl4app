@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default class GridControl extends  React.Component {
+export default class GridControl extends React.Component {
     render() {
         return (
             <div id="grid" className={ this.props.data.grid.classname.join(" ") }>
