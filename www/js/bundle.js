@@ -20776,6 +20776,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * Grid component, visual feedback
+ */
 var GridControl = function (_React$Component) {
     _inherits(GridControl, _React$Component);
 
@@ -20794,7 +20797,7 @@ var GridControl = function (_React$Component) {
                 _react2.default.createElement(
                     "svg",
                     { viewBox: "0 0 264 128" },
-                    _react2.default.createElement("polyLine", { points: "192,12 12,12 42,64 72,12 102,64 132,12 162,64 192,12 222,64 42,64 72,116 102,64 132,116 162,64 192,116 222,64 252,116 72,116" }),
+                    _react2.default.createElement("polyline", { points: "192,12 12,12 42,64 72,12 102,64 132,12 162,64 192,12 222,64 42,64 72,116 102,64 132,116 162,64 192,116 222,64 252,116 72,116" }),
                     _react2.default.createElement("circle", { id: "c1", cx: "12", cy: "12", r: "10" }),
                     _react2.default.createElement("circle", { id: "c2", cx: "72", cy: "12", r: "10" }),
                     _react2.default.createElement("circle", { id: "c3", cx: "132", cy: "12", r: "10" }),
@@ -20838,6 +20841,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * Info component, textual feedback
+ */
 var InfoControl = function (_React$Component) {
     _inherits(InfoControl, _React$Component);
 
@@ -20899,40 +20905,11 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var LevelBar = function (_React$Component) {
-    _inherits(LevelBar, _React$Component);
-
-    function LevelBar() {
-        _classCallCheck(this, LevelBar);
-
-        return _possibleConstructorReturn(this, (LevelBar.__proto__ || Object.getPrototypeOf(LevelBar)).apply(this, arguments));
-    }
-
-    _createClass(LevelBar, [{
-        key: "render",
-        value: function render() {
-            return _react2.default.createElement(
-                "div",
-                { className: "bar" },
-                _react2.default.createElement(
-                    "span",
-                    { className: "label" },
-                    this.props.params.label
-                ),
-                _react2.default.createElement(
-                    "div",
-                    { className: "outer" },
-                    _react2.default.createElement("div", { className: "inner", style: { width: this.props.params.level + "%" } })
-                )
-            );
-        }
-    }]);
-
-    return LevelBar;
-}(_react2.default.Component);
-
-var LevelControl = function (_React$Component2) {
-    _inherits(LevelControl, _React$Component2);
+/**
+ * Show the levels of the chord
+ */
+var LevelControl = function (_React$Component) {
+    _inherits(LevelControl, _React$Component);
 
     function LevelControl() {
         _classCallCheck(this, LevelControl);
@@ -20967,6 +20944,38 @@ var LevelControl = function (_React$Component2) {
 
 exports.default = LevelControl;
 
+var LevelBar = function (_React$Component2) {
+    _inherits(LevelBar, _React$Component2);
+
+    function LevelBar() {
+        _classCallCheck(this, LevelBar);
+
+        return _possibleConstructorReturn(this, (LevelBar.__proto__ || Object.getPrototypeOf(LevelBar)).apply(this, arguments));
+    }
+
+    _createClass(LevelBar, [{
+        key: "render",
+        value: function render() {
+            return _react2.default.createElement(
+                "div",
+                { className: "bar" },
+                _react2.default.createElement(
+                    "span",
+                    { className: "label" },
+                    this.props.params.label
+                ),
+                _react2.default.createElement(
+                    "div",
+                    { className: "outer" },
+                    _react2.default.createElement("div", { className: "inner", style: { width: this.props.params.level + "%" } })
+                )
+            );
+        }
+    }]);
+
+    return LevelBar;
+}(_react2.default.Component);
+
 },{"react":171}],175:[function(require,module,exports){
 "use strict";
 
@@ -20988,6 +20997,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * Settings component
+ */
 var SettingsControl = function (_React$Component) {
     _inherits(SettingsControl, _React$Component);
 
@@ -21073,6 +21085,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * Status component: has start toggle and status indicators
+ */
 var StatusControl = function (_React$Component) {
     _inherits(StatusControl, _React$Component);
 
@@ -21105,6 +21120,11 @@ var StatusControl = function (_React$Component) {
 
     return StatusControl;
 }(_react2.default.Component);
+
+/**
+ * Status indicator: takes 2 params: label and id
+ */
+
 
 exports.default = StatusControl;
 
@@ -21139,6 +21159,11 @@ var StatusIndicator = function (_React$Component2) {
 
     return StatusIndicator;
 }(_react2.default.Component);
+
+/**
+ * Status indicator: takes 2 params: label and id
+ */
+
 
 var SettingsToggleButton = function (_React$Component3) {
     _inherits(SettingsToggleButton, _React$Component3);

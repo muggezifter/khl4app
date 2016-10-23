@@ -1,5 +1,8 @@
 import React from 'react';
 
+/**
+ * Info component, textual feedback
+ */
 export default class InfoControl extends React.Component {
     render() {
         return (

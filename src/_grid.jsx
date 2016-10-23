@@ -1,11 +1,14 @@
 import React from 'react';
 
+/**
+ * Grid component, visual feedback
+ */
 export default class GridControl extends React.Component {
     render() {
         return (
             <div id="grid" className={ this.props.data.grid.classname.join(" ") }>
                 <svg viewBox="0 0 264 128">
-                    <polyLine points="192,12 12,12 42,64 72,12 102,64 132,12 162,64 192,12
+                    <polyline points="192,12 12,12 42,64 72,12 102,64 132,12 162,64 192,12
                     222,64 42,64 72,116 102,64 132,116 162,64 192,116 222,64 252,116 72,116"/>
 
                     <circle id="c1" cx="12" cy="12" r="10"/>

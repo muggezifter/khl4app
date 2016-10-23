@@ -1,18 +1,9 @@
 import React from 'react';
 
-class LevelBar extends  React.Component {
-    render() {
-        return (
-            <div className="bar">
-                <span className="label">{ this.props.params.label }</span>
-                <div className="outer">
-                    <div className="inner" style={{width: this.props.params.level + "%"}}></div>
-                </div>
-            </div>
-        )
-    }
-}
 
+/**
+ * Show the levels of the chord
+ */
 export default class LevelControl extends  React.Component {
     render() {
         return (
@@ -31,5 +22,18 @@ export default class LevelControl extends  React.Component {
                 }}  />
             </div>
         );
+    }
+}
+
+class LevelBar extends  React.Component {
+    render() {
+        return (
+            <div className="bar">
+                <span className="label">{ this.props.params.label }</span>
+                <div className="outer">
+                    <div className="inner" style={{width: this.props.params.level + "%"}}></div>
+                </div>
+            </div>
+        )
     }
 }

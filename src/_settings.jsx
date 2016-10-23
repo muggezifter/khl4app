@@ -1,5 +1,8 @@
 import React from 'react';
 
+/**
+ * Settings component
+ */
 export default class SettingsControl extends React.Component {
     render() {
         return (

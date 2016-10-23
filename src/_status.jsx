@@ -1,5 +1,8 @@
 import React from 'react';
 
+/**
+ * Status component: has start toggle and status indicators
+ */
 export default class StatusControl extends React.Component {
     render() {
         return (
@@ -17,6 +20,9 @@ export default class StatusControl extends React.Component {
     }
 }
 
+/**
+ * Status indicator: takes 2 params: label and id
+ */
 class StatusIndicator extends React.Component {
     render() {
         return (
@@ -30,6 +36,9 @@ class StatusIndicator extends React.Component {
     }
 }
 
+/**
+ * Status indicator: takes 2 params: label and id
+ */
 class SettingsToggleButton extends React.Component {
     render() {
         return (
