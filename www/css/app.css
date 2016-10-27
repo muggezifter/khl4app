@@ -35,6 +35,12 @@
   * {
     font-size: 60px; } }
 
+body .control#status > div button, body .control#settings button {
+  border: 0.1em solid #999;
+  padding: 0 1em 2px;
+  border-radius: 0.8em;
+  background-color: inherit; }
+
 body {
   background-color: #999;
   margin: 0;
@@ -56,26 +62,21 @@ body {
         float: left;
         text-align: center;
         width: 33%; }
-        body .control#status > div button {
-          border: 0.1em solid #999;
-          padding: 0 1em 2px;
-          border-radius: 0.8em;
-          background-color: inherit; }
-          body .control#status > div button#toggle_settings {
-            float: right;
-            margin-right: 0.2em;
-            border: none;
-            height: 1.4em;
-            width: 1.4em;
-            padding: 0.1em;
-            margin: 0; }
-            body .control#status > div button#toggle_settings svg {
-              margin-top: -0.2em;
-              margin-left: -0.2em;
-              width: 1.6em;
-              fill: #999; }
-          body .control#status > div button#toggle_rec::after {
-            content: "start"; }
+        body .control#status > div button#toggle_settings {
+          float: right;
+          margin-right: 0.2em;
+          border: none;
+          height: 1.4em;
+          width: 1.4em;
+          padding: 0.1em;
+          margin: 0; }
+          body .control#status > div button#toggle_settings svg {
+            margin-top: -0.2em;
+            margin-left: -0.2em;
+            width: 1.6em;
+            fill: #999; }
+        body .control#status > div button#toggle_rec::after {
+          content: "start"; }
         body .control#status > div.indicator svg {
           width: 0.5em;
           vertical-align: middle; }
@@ -93,13 +94,16 @@ body {
       body .control#status.sending #send_indicator circle {
         fill: #ff9933; }
     body .control#settings {
-      display: none; }
+      display: none;
+      text-align: center; }
       body .control#settings.open {
         display: block; }
       body .control#settings input, body .control#settings select, body .control#settings option {
         width: 100%;
         font-size: 0.7rem;
-        margin-bottom: 0.5em; }
+        margin-bottom: 0.5rem; }
+      body .control#settings button {
+        margin: 0.2rem 0; }
     body .control#grid svg {
       width: 100%;
       height: auto;
@@ -138,19 +142,12 @@ body {
       body .control#level .bar:last-child {
         margin-bottom: -0.2em; }
     body .control#info {
-      padding: 0 1em; }
-      body .control#info > div {
-        float: left;
-        width: 50%;
-        color: #ff9933; }
-        body .control#info > div#rec_id {
-          padding-bottom: 0.3em;
-          width: 100%; }
-        body .control#info > div span {
+      padding: 0 0.1rem; }
+      body .control#info table {
+        margin: 0 auto; }
+        body .control#info table tr td {
+          text-align: left;
+          padding: 0 0.5rem;
           color: #ff9933; }
-          body .control#info > div span :nth-last-of-type(1) {
-            float: right; }
-        body .control#info > div #number::before {
-          content: "#"; }
-        body .control#info > div #time {
-          text-align: right; }
+          body .control#info table tr td:last-child {
+            text-align: right; }

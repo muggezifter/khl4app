@@ -7,9 +7,22 @@ export default class InfoControl extends React.Component {
     render() {
         return (
             <div id="info" className="control dark">
-                <div id="rec_id">id: {this.props.data.info.rec_id}</div>
-                <div id="number">{this.props.data.info.number}</div>
-                <div id="time">{this.props.data.info.time}</div>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>grid:</td>
+                            <td>{this.props.data.grid.label}</td>
+                        </tr>
+                        <tr>
+                               <td>id:</td>
+                            <td>{this.props.data.info.rec_id}</td>
+                        </tr>
+                        <tr>
+                            <td>#{this.props.data.info.number}</td>
+                            <td>{this.props.data.info.time}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         );
     }

@@ -20860,20 +20860,55 @@ var InfoControl = function (_React$Component) {
                 "div",
                 { id: "info", className: "control dark" },
                 _react2.default.createElement(
-                    "div",
-                    { id: "rec_id" },
-                    "id: ",
-                    this.props.data.info.rec_id
-                ),
-                _react2.default.createElement(
-                    "div",
-                    { id: "number" },
-                    this.props.data.info.number
-                ),
-                _react2.default.createElement(
-                    "div",
-                    { id: "time" },
-                    this.props.data.info.time
+                    "table",
+                    null,
+                    _react2.default.createElement(
+                        "tbody",
+                        null,
+                        _react2.default.createElement(
+                            "tr",
+                            null,
+                            _react2.default.createElement(
+                                "td",
+                                null,
+                                "grid:"
+                            ),
+                            _react2.default.createElement(
+                                "td",
+                                null,
+                                this.props.data.grid.label
+                            )
+                        ),
+                        _react2.default.createElement(
+                            "tr",
+                            null,
+                            _react2.default.createElement(
+                                "td",
+                                null,
+                                "id:"
+                            ),
+                            _react2.default.createElement(
+                                "td",
+                                null,
+                                this.props.data.info.rec_id
+                            )
+                        ),
+                        _react2.default.createElement(
+                            "tr",
+                            null,
+                            _react2.default.createElement(
+                                "td",
+                                null,
+                                "#",
+                                this.props.data.info.number
+                            ),
+                            _react2.default.createElement(
+                                "td",
+                                null,
+                                this.props.data.info.time
+                            )
+                        )
+                    )
                 )
             );
         }
@@ -21015,8 +21050,14 @@ var SettingsControl = function (_React$Component) {
             return _react2.default.createElement(
                 "div",
                 { id: "settings", className: this.props.data.settings.classname.join(" ") },
-                _react2.default.createElement(UrlInputControl, { data: this.props.data, changeUrlHandler: this.props.changeUrlHandler }),
-                _react2.default.createElement(GridSelectControl, { data: this.props.data, changeGridHandler: this.props.changeGridHandler })
+                _react2.default.createElement(UrlInputControl, {
+                    data: this.props.data,
+                    changeUrlHandler: this.props.changeUrlHandler }),
+                _react2.default.createElement(GridSelectControl, {
+                    data: this.props.data,
+                    changeGridHandler: this.props.changeGridHandler }),
+                _react2.default.createElement(UpdateGridsControl, {
+                    updateGridsHandler: this.props.updateGridsHandler })
             );
         }
     }]);
@@ -21060,11 +21101,6 @@ var GridSelectControl = function (_React$Component3) {
             return _react2.default.createElement(
                 "select",
                 { id: "grid_id", value: this.props.data.grid.id, onChange: this.props.changeGridHandler },
-                _react2.default.createElement(
-                    "option",
-                    { value: "" },
-                    "choose a grid..."
-                ),
                 this.props.data.grids.map(function (grid, i) {
                     return _react2.default.createElement(GridOptionControl, {
                         key: i,
@@ -21099,6 +21135,29 @@ var GridOptionControl = function (_React$Component4) {
     }]);
 
     return GridOptionControl;
+}(_react2.default.Component);
+
+var UpdateGridsControl = function (_React$Component5) {
+    _inherits(UpdateGridsControl, _React$Component5);
+
+    function UpdateGridsControl() {
+        _classCallCheck(this, UpdateGridsControl);
+
+        return _possibleConstructorReturn(this, (UpdateGridsControl.__proto__ || Object.getPrototypeOf(UpdateGridsControl)).apply(this, arguments));
+    }
+
+    _createClass(UpdateGridsControl, [{
+        key: "render",
+        value: function render() {
+            return _react2.default.createElement(
+                "button",
+                { onClick: this.props.updateGridsHandler },
+                "update grids "
+            );
+        }
+    }]);
+
+    return UpdateGridsControl;
 }(_react2.default.Component);
 
 },{"react":171}],176:[function(require,module,exports){
@@ -21234,23 +21293,23 @@ var SettingsToggleButton = function (_React$Component3) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _info = require('./_info.jsx');
+var _info = require('./_info');
 
 var _info2 = _interopRequireDefault(_info);
 
-var _grid = require('./_grid.jsx');
+var _grid = require('./_grid');
 
 var _grid2 = _interopRequireDefault(_grid);
 
-var _level = require('./_level.jsx');
+var _level = require('./_level');
 
 var _level2 = _interopRequireDefault(_level);
 
-var _settings = require('./_settings.jsx');
+var _settings = require('./_settings');
 
 var _settings2 = _interopRequireDefault(_settings);
 
-var _status = require('./_status.jsx');
+var _status = require('./_status');
 
 var _status2 = _interopRequireDefault(_status);
 
@@ -21280,7 +21339,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * ticks: How many ticks between requests. 1 tick is ~ 500ms
  */
 var settings = {
-    url: "https://khl4.ngrok.io",
+    //url: "https://khl4.ngrok.io",
+    url: "http://localhost:3000",
     ticksPerUpdate: 20,
     tickLength: 500
 };
@@ -21305,9 +21365,11 @@ var KhlApp = function (_React$Component) {
             },
             grid: {
                 classname: ["control"],
-                id: localStorage.getItem("grid_id") || "G0001"
+                id: localStorage.getItem("grid_id") || "",
+                label: localStorage.getItem("grid_label") || "[no grid chosen]"
             },
-            grids: [{ id: "G0001", label: "Rotterdam" }, { id: "G0002", label: "Spangen" }],
+            grids: JSON.parse(localStorage.getItem("grids")) || [{ id: "null", label: "no grids available" }],
+
             status: {
                 classname: ["control"]
             },
@@ -21413,7 +21475,33 @@ var KhlApp = function (_React$Component) {
             var grid_id = event.target.value;
             localStorage.setItem("grid_id", grid_id);
             this.state.grid.id = grid_id;
+            var g = this.state.grids.filter(function (g) {
+                return g.id == grid_id;
+            });
+            if (g.length > 0) {
+                localStorage.setItem("grid_label", g[0].label);
+                this.state.grid.label = g[0].label;
+            }
+            console.log(grid);
+
             this.setState(this.state);
+        }
+        /**
+         * Update local grids list
+         */
+
+    }, {
+        key: 'updateGridsHandler',
+        value: function updateGridsHandler(event) {
+            var _this3 = this;
+
+            _jqueryAjaxMin2.default.getJSON(this.state.url + "/grid/list?callback=?").done(function (data) {
+                _this3.state.grids = data.map(function (g) {
+                    return { id: g.grid_id, label: g.name };
+                });
+                localStorage.setItem("grids", JSON.stringify(_this3.state.grids));
+                _this3.setState(_this3.state);
+            });
         }
         /**
          * Start a recording
@@ -21422,10 +21510,10 @@ var KhlApp = function (_React$Component) {
     }, {
         key: 'initRec',
         value: function initRec(callback) {
-            var _this3 = this;
+            var _this4 = this;
 
             _jqueryAjaxMin2.default.getJSON(this.state.url + "/recording/start?grid=" + this.state.grid.id + "&callback=?").done(function (data) {
-                _this3.state.info.rec_id = data.recording_id;
+                _this4.state.info.rec_id = data.recording_id;
                 callback();
             });
         }
@@ -21436,11 +21524,11 @@ var KhlApp = function (_React$Component) {
     }, {
         key: 'endRec',
         value: function endRec(callback) {
-            var _this4 = this;
+            var _this5 = this;
 
             _jqueryAjaxMin2.default.getJSON(this.state.url + "/recording/stop?rec_id=" + this.state.info.rec_id + "&callback=?").done(function (data) {
-                _this4.state.grid.classname = ["control"];
-                _this4.state.info.rec_id = "[not recording]";
+                _this5.state.grid.classname = ["control"];
+                _this5.state.info.rec_id = "[not recording]";
                 callback();
             });
         }
@@ -21451,7 +21539,7 @@ var KhlApp = function (_React$Component) {
     }, {
         key: 'updatePos',
         value: function updatePos() {
-            var _this5 = this;
+            var _this6 = this;
 
             var number = "0000" + (parseInt(this.state.info.number) + 1);
             number = number.substr(number.length - 4);
@@ -21459,9 +21547,9 @@ var KhlApp = function (_React$Component) {
             navigator.geolocation.getCurrentPosition(function (pos) {
                 var lon = pos.coords.longitude;
                 var lat = pos.coords.latitude;
-                _jqueryAjaxMin2.default.getJSON([_this5.state.url, "/recording/node?nr=", _this5.state.info.number, "&rec_id=", _this5.state.info.rec_id, "&grid_id=", _this5.state.grid.id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
-                    _this5.state.grid.classname = _this5.getGridClassName(data);
-                    _this5.state.levels = _this5.getLevels(data);
+                _jqueryAjaxMin2.default.getJSON([_this6.state.url, "/recording/node?nr=", _this6.state.info.number, "&rec_id=", _this6.state.info.rec_id, "&grid_id=", _this6.state.grid.id, "&lat=", lat, "&lon=", lon, "&callback=?"].join("")).done(function (data) {
+                    _this6.state.grid.classname = _this6.getGridClassName(data);
+                    _this6.state.levels = _this6.getLevels(data);
                 });
             }, function (err) {
                 console.warn('ERROR(' + err.code + '): ' + err.message);
@@ -21494,12 +21582,12 @@ var KhlApp = function (_React$Component) {
     }, {
         key: 'getLevels',
         value: function getLevels(data) {
-            var _this6 = this;
+            var _this7 = this;
 
             return data.filter(function (v) {
                 return v.hasOwnProperty("note");
             }).map(function (v) {
-                return { "label": _this6.m2n(v.note), "level": 100 / 127 * v.velocity };
+                return { "label": _this7.m2n(v.note), "level": 100 / 127 * v.velocity };
             });
         }
         /**
@@ -21542,8 +21630,15 @@ var KhlApp = function (_React$Component) {
             return _react2.default.createElement(
                 'div',
                 { className: 'khlApp' },
-                _react2.default.createElement(_status2.default, { data: this.state, toggleHandler: this.toggleClock.bind(this), toggleSettings: this.toggleSettings.bind(this) }),
-                _react2.default.createElement(_settings2.default, { data: this.state, changeUrlHandler: this.changeUrlHandler.bind(this), changeGridHandler: this.changeGridHandler.bind(this) }),
+                _react2.default.createElement(_status2.default, {
+                    data: this.state,
+                    toggleHandler: this.toggleClock.bind(this),
+                    toggleSettings: this.toggleSettings.bind(this) }),
+                _react2.default.createElement(_settings2.default, {
+                    data: this.state,
+                    changeUrlHandler: this.changeUrlHandler.bind(this),
+                    changeGridHandler: this.changeGridHandler.bind(this),
+                    updateGridsHandler: this.updateGridsHandler.bind(this) }),
                 _react2.default.createElement(_grid2.default, { data: this.state }),
                 _react2.default.createElement(_level2.default, { data: this.state }),
                 _react2.default.createElement(_info2.default, { data: this.state })
@@ -21556,7 +21651,7 @@ var KhlApp = function (_React$Component) {
 
 _reactDom2.default.render(_react2.default.createElement(KhlApp, null), document.getElementById('container'));
 
-},{"./_grid.jsx":172,"./_info.jsx":173,"./_level.jsx":174,"./_settings.jsx":175,"./_status.jsx":176,"./jquery-ajax.min.js":178,"react":171,"react-dom":28}],178:[function(require,module,exports){
+},{"./_grid":172,"./_info":173,"./_level":174,"./_settings":175,"./_status":176,"./jquery-ajax.min.js":178,"react":171,"react-dom":28}],178:[function(require,module,exports){
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };

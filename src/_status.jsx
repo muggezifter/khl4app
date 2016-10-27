@@ -11,7 +11,6 @@ export default class StatusControl extends React.Component {
                     <button id="toggle_rec" onClick={ this.props.toggleHandler }></button>
                 </div>
                 <StatusIndicator params={{label: "rec", id: "rec_indicator"}} />
-            {/*<StatusIndicator params={{label: "send", id: "send_indicator"}} />*/}
                 <div>
                     <SettingsToggleButton toggleHandler={ this.props.toggleSettings }/>
                 </div>

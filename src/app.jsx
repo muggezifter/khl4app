@@ -1,8 +1,8 @@
-import InfoControl from './_info.jsx';
-import GridControl from './_grid.jsx';
-import LevelControl from './_level.jsx';
-import SettingsControl from './_settings.jsx';
-import StatusControl from './_status.jsx';
+import InfoControl from './_info';
+import GridControl from './_grid';
+import LevelControl from './_level';
+import SettingsControl from './_settings';
+import StatusControl from './_status';
 import jQuery from './jquery-ajax.min.js';
 import ReactDOM from 'react-dom';
 import React from 'react';
@@ -14,7 +14,8 @@ import React from 'react';
  * ticks: How many ticks between requests. 1 tick is ~ 500ms
  */
 var settings = {
-    url: "https://khl4.ngrok.io",
+    //url: "https://khl4.ngrok.io",
+    url: "http://localhost:3000",
     ticksPerUpdate: 20,
     tickLength: 500
 }
@@ -33,12 +34,13 @@ class KhlApp extends React.Component {
             },
             grid: {
                 classname: ["control"],
-                id: localStorage.getItem("grid_id") || "G0001"
+                id: localStorage.getItem("grid_id") || "",
+                label: localStorage.getItem("grid_label") || "[no grid chosen]"
             },
-            grids: [
-                { id: "G0001", label :"Rotterdam" },
-                { id: "G0002", label :"Spangen" }
+            grids: JSON.parse(localStorage.getItem("grids")) || [
+                { id: "null", label :"no grids available" }
             ],
+
             status: {
                 classname: ["control"]
             },
@@ -127,9 +129,27 @@ class KhlApp extends React.Component {
      */
     changeGridHandler(event) {
         var grid_id = event.target.value;
-        localStorage.setItem("grid_id", grid_id);
-        this.state.grid.id = grid_id;
+            localStorage.setItem("grid_id", grid_id);
+            this.state.grid.id = grid_id;
+        var g = this.state.grids.filter(g=>g.id==grid_id);
+        if (g.length > 0) {
+            localStorage.setItem("grid_label", g[0].label);
+            this.state.grid.label = g[0].label;
+        }
+        console.log(grid);
+
         this.setState(this.state);
+    }
+    /**
+     * Update local grids list
+     */
+    updateGridsHandler(event) {
+        jQuery.getJSON(this.state.url + "/grid/list?callback=?")
+            .done(data => {
+                this.state.grids = data.map(g => ({ id : g.grid_id, label: g.name }));
+                localStorage.setItem("grids", JSON.stringify(this.state.grids));
+                this.setState(this.state);
+        });
     }
     /**
      * Start a recording
@@ -235,8 +255,15 @@ class KhlApp extends React.Component {
     render() {
         return (
             <div className="khlApp">
-                <StatusControl data={ this.state } toggleHandler = { this.toggleClock.bind(this) } toggleSettings = { this.toggleSettings.bind(this) } />
-                <SettingsControl data={ this.state } changeUrlHandler = { this.changeUrlHandler.bind(this) } changeGridHandler = { this.changeGridHandler.bind(this) } />
+                <StatusControl 
+                    data={ this.state } 
+                    toggleHandler = { this.toggleClock.bind(this) } 
+                    toggleSettings = { this.toggleSettings.bind(this) } />
+                <SettingsControl 
+                    data={ this.state } 
+                    changeUrlHandler = { this.changeUrlHandler.bind(this) } 
+                    changeGridHandler = { this.changeGridHandler.bind(this) } 
+                    updateGridsHandler = { this.updateGridsHandler.bind(this) } />
                 <GridControl data={ this.state } />
                 <LevelControl data = { this.state} />
                 <InfoControl data={ this.state } />

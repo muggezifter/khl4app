@@ -1,5 +1,6 @@
 &#settings {
     display: none;
+    text-align: center;
     &.open {
        display: block;
     }
@@ -8,4 +9,8 @@
         font-size: 0.7rem;
         margin-bottom: 0.5rem;
     }
+    button {
+    	@extend %button;
+    	margin: 0.2rem 0;
+	}
 }

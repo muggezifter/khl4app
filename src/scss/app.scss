@@ -25,6 +25,13 @@ $font: arial, "Helvetica Neue", Helvetica, Arial, sans-serif;
 @media (min-width: 700px) { * { font-size: 52.5px; }}
 @media (min-width: 800px) { * {  font-size: 60px; }}
 
+%button {
+    border: 0.1em solid $fg-color;
+    padding: 0 1em 2px;
+    border-radius: 0.8em;
+    background-color: inherit;
+}
+
 body {
     background-color: $bg-color;
     margin: 0;
