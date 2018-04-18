@@ -1,9 +1,9 @@
 /* grid control: */
 &#grid { 
-    min-height: 100px;
+    //min-height: 100px;
     svg {
-        width: 100%;
-        height: auto;
+        width: 87vw;
+        height: 50vw;
         margin-bottom: 0;
         circle,polyline {
             stroke: $fg-color;
